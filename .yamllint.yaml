@@ -1,0 +1,11 @@
+---
+extends: default
+rules:
+  line-length:
+    max: 220
+    allow-non-breakable-words: true
+    allow-non-breakable-inline-mappings: true
+  document-start:
+    level: error
+  truthy:
+    check-keys: false
