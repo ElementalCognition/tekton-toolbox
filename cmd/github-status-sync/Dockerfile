@@ -15,6 +15,6 @@ RUN --mount=type=cache,id=gomod,target=/go/pkg/mod \
     --mount=type=cache,id=gobuild,target=/root/.cache/go-build \
     go build -o /go/bin/github-status-sync ./cmd/github-status-sync
 
-FROM alpine:3.14
+FROM alpine:3.15.2
 COPY --from=build /go/bin/github-status-sync /usr/local/bin/github-status-sync
 CMD ["github-status-sync"]
