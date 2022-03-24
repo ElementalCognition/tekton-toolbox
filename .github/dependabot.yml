@@ -1,0 +1,31 @@
+---
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+  - package-ecosystem: gomod
+    directory: /
+    schedule:
+      interval: daily
+  - package-ecosystem: docker
+    directory: /cmd/gcs-log-proxy
+    schedule:
+      interval: daily
+  - package-ecosystem: docker
+    directory: /cmd/github-pipeline-config
+    schedule:
+      interval: daily
+  - package-ecosystem: docker
+    directory: /cmd/github-status-sync
+    schedule:
+      interval: daily
+  - package-ecosystem: docker
+    directory: /cmd/kube-pipeline-config
+    schedule:
+      interval: daily
+  - package-ecosystem: docker
+    directory: /cmd/pipeline-config-trigger
+    schedule:
+      interval: daily
