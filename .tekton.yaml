@@ -117,6 +117,10 @@ triggers:
             value: body.pull_request.number
   - name: main
     pipelines:
+      - name: go-sanity
+        pipelineRef:
+          name: go-sanity
+          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/go:0.1
       - name: gitops-gcs-log-proxy
         metadata:
           annotations:
@@ -140,7 +144,7 @@ triggers:
           - name: buildkit-name
             value: tekton-pipeline-config
           - name: buildkit-dockerfile
-            value: cmd/config-server/Dockerfile
+            value: cmd/gcs-log-proxy/Dockerfile
           - name: buildkit-image
             value: us-east4-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/gcs-log-proxy
           - name: buildkit-tag
@@ -172,7 +176,7 @@ triggers:
           - name: buildkit-name
             value: tekton-pipeline-config
           - name: buildkit-dockerfile
-            value: cmd/config-server/Dockerfile
+            value: cmd/github-pipeline-config/Dockerfile
           - name: buildkit-image
             value: us-east4-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/github-pipeline-config
           - name: buildkit-tag
@@ -204,7 +208,7 @@ triggers:
           - name: buildkit-name
             value: tekton-pipeline-config
           - name: buildkit-dockerfile
-            value: cmd/config-server/Dockerfile
+            value: cmd/github-status-sync/Dockerfile
           - name: buildkit-image
             value: us-east4-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/github-status-sync
           - name: buildkit-tag
@@ -236,7 +240,7 @@ triggers:
           - name: buildkit-name
             value: tekton-pipeline-config
           - name: buildkit-dockerfile
-            value: cmd/config-server/Dockerfile
+            value: cmd/kube-pipeline-config/Dockerfile
           - name: buildkit-image
             value: us-east4-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/kube-pipeline-config
           - name: buildkit-tag
@@ -268,7 +272,7 @@ triggers:
           - name: buildkit-name
             value: tekton-pipeline-config
           - name: buildkit-dockerfile
-            value: cmd/config-server/Dockerfile
+            value: cmd/pipeline-config-trigger/Dockerfile
           - name: buildkit-image
             value: us-east4-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/pipeline-config-trigger
           - name: buildkit-tag
