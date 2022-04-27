@@ -2,6 +2,7 @@ package githubstatussync
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/google/go-github/v43/github"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
@@ -25,32 +26,41 @@ func checkRun(eventType string, tr *v1beta1.TaskRun) (*github.CreateCheckRunOpti
 	}
 	ref := tr.Annotations[refKey.String()]
 	var chkRunAnno []*github.CheckRunAnnotation
+	var logs []string
 	for _, v := range tr.Status.Steps {
-		var s string
+		var s, e string
 		switch v.Terminated.Reason {
 		case "Completed":
 			s = "notice"
+			e = ":white_check_mark:"
 		case "Failed":
 			s = "failure"
+			e = ":x:"
+		case "Error":
+			s = "failure"
+			e = ":x:"
 		case "TaskRunCancelled":
 			s = "warning"
+			e = ":warning:"
 		default:
 			s = "notice"
+			e = ":grey_question:"
 		}
+		logs = append(logs, fmt.Sprintf("- Raw log for step[%s](%s/%s/%s/%s) %s .  ", v.Name, tr.Annotations[logServer.String()], tr.Namespace, tr.Status.PodName, v.ContainerName, e))
 		chkRunAnno = append(chkRunAnno, &github.CheckRunAnnotation{
 			Path:            github.String("README.md"), // Dummy file name, required item.
 			StartLine:       github.Int(1),              // Dummy int, required item.
 			EndLine:         github.Int(1),              // Dummy int, required item.
 			AnnotationLevel: github.String(s),           // Can be one of notice, warning, or failure.
 			Title:           github.String(v.Name),
-			Message:         github.String(fmt.Sprintf("[LOG File](%s/%s/%s/%s)", tr.Annotations[logServer.String()], tr.Namespace, tr.Status.PodName, v.ContainerName)),
+			Message:         github.String(fmt.Sprintf("Task %s was finished, reason: %s.", v.Name, v.Terminated.Reason)),
 			RawDetails:      github.String(v.Terminated.Message),
 		})
 	}
 	output := &github.CheckRunOutput{
 		Title:       github.String("Steps details"),
-		Summary:     github.String("Summary will be here"),
-		Text:        github.String(fmt.Sprintf("## More details are on [Tekton Dashboard](%s).  Raw logs (ANNOTATIONS) are available for 30 days.", url)),
+		Summary:     github.String(fmt.Sprintf("You can find more details on %s. Check the raw logs if data is no longer available on %s.", url, url)),
+		Text:        github.String(strings.Join(logs, "")),
 		Annotations: chkRunAnno,
 	}
 	return &github.CreateCheckRunOptions{
