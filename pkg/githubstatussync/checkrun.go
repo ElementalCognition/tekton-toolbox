@@ -38,7 +38,7 @@ func checkRunOutput(tr *v1beta1.TaskRun, url string) *github.CheckRunOutput {
 			RawDetails:      github.String(v.Terminated.Message),
 		})
 	}
-	fmt.
+
 	return &github.CheckRunOutput{
 		Title:       github.String("Steps details"),
 		Summary:     github.String(fmt.Sprintf("You can find more details on %s. Check the raw logs if data is no longer available on Tekton Dashboard.", url)),
