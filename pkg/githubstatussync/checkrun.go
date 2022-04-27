@@ -1,7 +1,7 @@
 package githubstatussync
 
 import (
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v43/github"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 )
 
@@ -31,5 +31,6 @@ func checkRun(eventType string, tr *v1beta1.TaskRun) (*github.CreateCheckRunOpti
 		StartedAt:   timestamp(tr.Status.StartTime),
 		CompletedAt: completedAt,
 		DetailsURL:  github.String(url),
+		Output: github.
 	}, nil
 }

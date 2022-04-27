@@ -2,9 +2,10 @@ package githubpipelineconfig
 
 import (
 	"context"
+
 	"github.com/ElementalCognition/tekton-toolbox/pkg/pipelineconfig"
 	"github.com/ElementalCognition/tekton-toolbox/pkg/vcspipelineconfig"
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v43/github"
 	"go.uber.org/zap"
 	"knative.dev/pkg/logging"
 )
