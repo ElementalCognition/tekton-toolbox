@@ -8,23 +8,7 @@ import (
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 )
 
-func checkRun(eventType string, tr *v1beta1.TaskRun) (*github.CreateCheckRunOptions, error) {
-	url, err := detailsURL(tr)
-	if err != nil {
-		return nil, err
-	}
-	name, err := nameFor(tr)
-	if err != nil {
-		return nil, err
-	}
-	status, conclusion := status(eventType)
-	completedAt := timestamp(tr.Status.CompletionTime)
-	switch status {
-	case checkRunStatusInProgress:
-	case checkRunStatusQueued:
-		completedAt = nil
-	}
-	ref := tr.Annotations[refKey.String()]
+func checkRunOutput(tr *v1beta1.TaskRun, url string) *github.CheckRunOutput {
 	var chkRunAnno []*github.CheckRunAnnotation
 	var logs []string
 	for _, v := range tr.Status.Steps {
@@ -57,12 +41,32 @@ func checkRun(eventType string, tr *v1beta1.TaskRun) (*github.CreateCheckRunOpti
 			RawDetails:      github.String(v.Terminated.Message),
 		})
 	}
-	output := &github.CheckRunOutput{
+	return &github.CheckRunOutput{
 		Title:       github.String("Steps details"),
 		Summary:     github.String(fmt.Sprintf("You can find more details on %s. Check the raw logs if data is no longer available on %s.", url, url)),
 		Text:        github.String(strings.Join(logs, "")),
 		Annotations: chkRunAnno,
 	}
+}
+
+func checkRun(eventType string, tr *v1beta1.TaskRun) (*github.CreateCheckRunOptions, error) {
+	url, err := detailsURL(tr)
+	if err != nil {
+		return nil, err
+	}
+	name, err := nameFor(tr)
+	if err != nil {
+		return nil, err
+	}
+	status, conclusion := status(eventType)
+	completedAt := timestamp(tr.Status.CompletionTime)
+	switch status {
+	case checkRunStatusInProgress:
+	case checkRunStatusQueued:
+		completedAt = nil
+	}
+	ref := tr.Annotations[refKey.String()]
+	output := checkRunOutput(tr, url)
 	return &github.CreateCheckRunOptions{
 		ExternalID:  github.String(string(tr.UID)),
 		Name:        name,
