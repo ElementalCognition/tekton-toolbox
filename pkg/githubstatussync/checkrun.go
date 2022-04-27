@@ -38,20 +38,19 @@ func checkRun(eventType string, tr *v1beta1.TaskRun) (*github.CreateCheckRunOpti
 			s = "notice"
 		}
 		chkRunAnno = append(chkRunAnno, &github.CheckRunAnnotation{
-			Path:            github.String(fmt.Sprintf("https://tekton-log.src.ec.ai/logs/%s/%s/%s", tr.Namespace, tr.Status.PodName, v.ContainerName)), // Dummy file name, required item.
-			StartLine:       github.Int(1),                                                                                                              // Dummy int, required item.
-			EndLine:         github.Int(1),                                                                                                              // Dummy int, required item.
-			AnnotationLevel: github.String(s),                                                                                                           // Can be one of notice, warning, or failure.
+			Path:            github.String("README.md"), // Dummy file name, required item.
+			StartLine:       github.Int(1),              // Dummy int, required item.
+			EndLine:         github.Int(1),              // Dummy int, required item.
+			AnnotationLevel: github.String(s),           // Can be one of notice, warning, or failure.
 			Title:           github.String(v.Name),
-			// TODO: url must be removed and placed as an annotation in kube-pipeline config.
-			Message:    github.String(fmt.Sprintf("https://tekton-log.src.ec.ai/logs/%s/%s/%s", tr.Namespace, tr.Status.PodName, v.ContainerName)),
-			RawDetails: github.String(v.Terminated.Message),
+			Message:         github.String(fmt.Sprintf("[LOG File](%s/%s/%s/%s)", tr.Annotations[logServer.String()], tr.Namespace, tr.Status.PodName, v.ContainerName)),
+			RawDetails:      github.String(v.Terminated.Message),
 		})
 	}
 	output := &github.CheckRunOutput{
 		Title:       github.String("Steps details"),
 		Summary:     github.String("Summary will be here"),
-		Text:        github.String(""),
+		Text:        github.String(fmt.Sprintf("## More details are on [Tekton Dashboard](%s).  Raw logs (ANNOTATIONS) are available for 30 days.", url)),
 		Annotations: chkRunAnno,
 	}
 	return &github.CreateCheckRunOptions{
