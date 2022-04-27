@@ -27,7 +27,7 @@ func checkRunOutput(tr *v1beta1.TaskRun, url string) *github.CheckRunOutput {
 			s = "notice"
 			e = ":grey_question:"
 		}
-		logs = append(logs, fmt.Sprintf("> Raw log for step: [%s](%s/%s/%s/%s) %s.", v.Name, tr.Annotations[logServer.String()], tr.Namespace, tr.Status.PodName, v.ContainerName, e))
+		logs = append(logs, fmt.Sprintf("Raw log for step: [%s](%s/%s/%s/%s) %s.", v.Name, tr.Annotations[logServer.String()], tr.Namespace, tr.Status.PodName, v.ContainerName, e))
 		chkRunAnno = append(chkRunAnno, &github.CheckRunAnnotation{
 			Path:            github.String("README.md"), // Dummy file name, required item.
 			StartLine:       github.Int(1),              // Dummy int, required item.
