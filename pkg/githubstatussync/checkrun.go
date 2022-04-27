@@ -24,9 +24,7 @@ func checkRun(eventType string, tr *v1beta1.TaskRun) (*github.CreateCheckRunOpti
 		completedAt = nil
 	}
 	ref := tr.Annotations[refKey.String()]
-
 	var chkRunAnno []*github.CheckRunAnnotation
-
 	for _, v := range tr.Status.Steps {
 		var s string
 		switch v.Terminated.Reason {
@@ -50,14 +48,12 @@ func checkRun(eventType string, tr *v1beta1.TaskRun) (*github.CreateCheckRunOpti
 			RawDetails: github.String(v.Terminated.Message),
 		})
 	}
-
 	output := &github.CheckRunOutput{
 		Title:       github.String("Steps details"),
 		Summary:     github.String("Summary will be here"),
 		Text:        github.String(""),
 		Annotations: chkRunAnno,
 	}
-
 	return &github.CreateCheckRunOptions{
 		ExternalID:  github.String(string(tr.UID)),
 		Name:        name,
