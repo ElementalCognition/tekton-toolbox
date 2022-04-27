@@ -17,10 +17,7 @@ func checkRunOutput(tr *v1beta1.TaskRun, url string) *github.CheckRunOutput {
 		case "Completed":
 			s = "notice"
 			e = ":white_check_mark:"
-		case "Failed":
-			s = "failure"
-			e = ":x:"
-		case "Error":
+		case "Failed", "Error":
 			s = "failure"
 			e = ":x:"
 		case "TaskRunCancelled":
@@ -30,7 +27,7 @@ func checkRunOutput(tr *v1beta1.TaskRun, url string) *github.CheckRunOutput {
 			s = "notice"
 			e = ":grey_question:"
 		}
-		logs = append(logs, fmt.Sprintf("- Raw log for step[%s](%s/%s/%s/%s) %s .  ", v.Name, tr.Annotations[logServer.String()], tr.Namespace, tr.Status.PodName, v.ContainerName, e))
+		logs = append(logs, fmt.Sprintf("- Raw log for step: [%s](%s/%s/%s/%s) %s .", v.Name, tr.Annotations[logServer.String()], tr.Namespace, tr.Status.PodName, v.ContainerName, e))
 		chkRunAnno = append(chkRunAnno, &github.CheckRunAnnotation{
 			Path:            github.String("README.md"), // Dummy file name, required item.
 			StartLine:       github.Int(1),              // Dummy int, required item.
@@ -43,8 +40,8 @@ func checkRunOutput(tr *v1beta1.TaskRun, url string) *github.CheckRunOutput {
 	}
 	return &github.CheckRunOutput{
 		Title:       github.String("Steps details"),
-		Summary:     github.String(fmt.Sprintf("You can find more details on %s. Check the raw logs if data is no longer available on %s.", url, url)),
-		Text:        github.String(strings.Join(logs, "")),
+		Summary:     github.String(fmt.Sprintf("You can find more details on %s. Check the raw logs if data is no longer available on Tekton Dashboard.", url)),
+		Text:        github.String(strings.Join(logs, "  ")),
 		Annotations: chkRunAnno,
 	}
 }
