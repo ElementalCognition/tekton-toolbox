@@ -31,6 +31,5 @@ func checkRun(eventType string, tr *v1beta1.TaskRun) (*github.CreateCheckRunOpti
 		StartedAt:   timestamp(tr.Status.StartTime),
 		CompletedAt: completedAt,
 		DetailsURL:  github.String(url),
-		Output: github.
 	}, nil
 }
