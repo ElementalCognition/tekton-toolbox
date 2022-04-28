@@ -9,9 +9,10 @@ func (a annotationKey) String() string {
 }
 
 const (
-	ownerKey = annotationKey("owner")
-	repoKey  = annotationKey("repo")
-	refKey   = annotationKey("ref")
-	urlKey   = annotationKey("url")
-	nameKey  = annotationKey("name")
+	ownerKey  = annotationKey("owner")
+	repoKey   = annotationKey("repo")
+	refKey    = annotationKey("ref")
+	urlKey    = annotationKey("url")
+	nameKey   = annotationKey("name")
+	logServer = annotationKey("log-server")
 )

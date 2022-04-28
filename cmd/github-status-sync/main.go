@@ -3,6 +3,10 @@ package main
 import (
 	"context"
 	"flag"
+	"net"
+	"net/http"
+	"time"
+
 	"github.com/ElementalCognition/tekton-toolbox/internal/chimiddleware"
 	"github.com/ElementalCognition/tekton-toolbox/internal/knativeinjection"
 	"github.com/ElementalCognition/tekton-toolbox/internal/serversignals"
@@ -13,15 +17,12 @@ import (
 	"github.com/ElementalCognition/tekton-toolbox/pkg/triggers"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"github.com/google/go-github/v39/github"
+	"github.com/google/go-github/v43/github"
 	"github.com/spf13/pflag"
 	"go.uber.org/zap"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"knative.dev/pkg/injection"
 	"knative.dev/pkg/logging"
-	"net"
-	"net/http"
-	"time"
 )
 
 type config struct {

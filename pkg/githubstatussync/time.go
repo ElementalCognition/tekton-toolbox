@@ -1,9 +1,10 @@
 package githubstatussync
 
 import (
-	"github.com/google/go-github/v39/github"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	t "time"
+
+	"github.com/google/go-github/v43/github"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func timestamp(t *metav1.Time) *github.Timestamp {
