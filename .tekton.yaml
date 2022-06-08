@@ -14,7 +14,7 @@ triggers:
       - name: go-sanity
         pipelineRef:
           name: go-sanity
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/go:0.1
+          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/go:0.2
       - name: buildkit-gcs-log-proxy
         metadata:
           annotations:
@@ -120,14 +120,14 @@ triggers:
       - name: go-sanity
         pipelineRef:
           name: go-sanity
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/go:0.1
+          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/go:0.2
       - name: gitops-gcs-log-proxy
         metadata:
           annotations:
             tekton.ec.ai/memberOf: gcs-log-proxy
         pipelineRef:
           name: gitops-release
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/gitops:0.1
+          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/gitops:0.2
         params:
           - name: argocd-name
             value: tekton-toolbox
@@ -159,7 +159,7 @@ triggers:
             tekton.ec.ai/memberOf: github-pipeline-config
         pipelineRef:
           name: gitops-release
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/gitops:0.1
+          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/gitops:0.2
         params:
           - name: argocd-name
             value: tekton-toolbox
@@ -191,7 +191,7 @@ triggers:
             tekton.ec.ai/memberOf: github-status-sync
         pipelineRef:
           name: gitops-release
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/gitops:0.1
+          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/gitops:0.2
         params:
           - name: argocd-name
             value: tekton-toolbox
@@ -223,7 +223,7 @@ triggers:
             tekton.ec.ai/memberOf: kube-pipeline-config
         pipelineRef:
           name: gitops-release
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/gitops:0.1
+          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/gitops:0.2
         params:
           - name: argocd-name
             value: tekton-toolbox
@@ -255,7 +255,7 @@ triggers:
             tekton.ec.ai/memberOf: pipeline-config-trigger
         pipelineRef:
           name: gitops-release
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/gitops:0.1
+          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/gitops:0.2
         params:
           - name: argocd-name
             value: tekton-toolbox
