@@ -6,8 +6,8 @@ require (
 	cloud.google.com/go/storage v1.21.0
 	github.com/bradleyfalzon/ghinstallation v1.1.1
 	github.com/go-chi/chi v1.5.4
-	github.com/google/cel-go v0.7.3
-	github.com/google/go-github/v39 v39.2.0
+	github.com/google/cel-go v0.12.0
+	github.com/google/go-github/v43 v43.0.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/imdario/mergo v0.3.12
 	github.com/spf13/pflag v1.0.5
@@ -18,7 +18,7 @@ require (
 	go.uber.org/zap v1.21.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	google.golang.org/api v0.70.0
-	google.golang.org/grpc v1.44.0
+	google.golang.org/grpc v1.46.0
 	gopkg.in/go-playground/pool.v3 v3.1.1
 	k8s.io/api v0.22.5
 	k8s.io/apimachinery v0.22.5
@@ -67,7 +67,6 @@ require (
 	github.com/google/go-cmp v0.5.7 // indirect
 	github.com/google/go-containerregistry v0.8.1-0.20220211173031-41f8d92709b7 // indirect
 	github.com/google/go-github/v29 v29.0.2 // indirect
-	github.com/google/go-github/v43 v43.0.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
@@ -117,8 +116,8 @@ require (
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20220218161850-94dd64e39d7c // indirect
-	google.golang.org/protobuf v1.27.1 // indirect
+	google.golang.org/genproto v0.0.0-20220502173005-c8bf987b8c21 // indirect
+	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect
