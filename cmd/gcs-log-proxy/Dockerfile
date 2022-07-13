@@ -1,6 +1,6 @@
 ARG GO_VERSION="1.17"
 FROM golang:${GO_VERSION}-alpine as base
-ENV GOPROXY="https://nexus.src.ec.ai/repository/go-all"
+ENV GOPROXY="https://artifacts.src.ec.ai/artifactory/api/go/go-all"
 WORKDIR /go/src/github.com/ElementalCognition/tekton-toolbox
 COPY ../../go.* ./
 RUN --mount=type=cache,id=gomod,target=/go/pkg/mod \
