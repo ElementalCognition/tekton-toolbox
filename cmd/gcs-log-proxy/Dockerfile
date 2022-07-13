@@ -15,6 +15,6 @@ RUN --mount=type=cache,id=gomod,target=/go/pkg/mod \
     --mount=type=cache,id=gobuild,target=/root/.cache/go-build \
     go build -o /go/bin/gcs-log-proxy ./cmd/gcs-log-proxy
 
-FROM alpine:3.14
+FROM alpine:3.16.0
 COPY --from=build /go/bin/gcs-log-proxy /usr/local/bin/gcs-log-proxy
 CMD ["gcs-log-proxy"]
