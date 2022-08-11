@@ -2,7 +2,13 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"flag"
+	"net"
+	"net/http"
+	"runtime"
+	"time"
+
 	"github.com/ElementalCognition/tekton-toolbox/internal/chimiddleware"
 	"github.com/ElementalCognition/tekton-toolbox/internal/knativeinjection"
 	"github.com/ElementalCognition/tekton-toolbox/internal/serversignals"
@@ -14,15 +20,13 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/spf13/pflag"
 	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
+	"github.com/tektoncd/triggers/pkg/interceptors/server"
 	"go.uber.org/zap"
 	"gopkg.in/go-playground/pool.v3"
+	kubeclientset "k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"knative.dev/pkg/injection"
 	"knative.dev/pkg/logging"
-	"net"
-	"net/http"
-	"runtime"
-	"time"
 )
 
 type config struct {
@@ -64,7 +68,7 @@ func newMux(
 
 func init() {
 	flag.String("config", "", "The path to the config file.")
-	flag.String("addr", "0.0.0.0:80", "The address and port.")
+	flag.String("addr", "0.0.0.0:8443", "The address and port.")
 	flag.Int("workers", runtime.NumCPU(), "The number of workers to trigger pipelines.")
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
@@ -92,11 +96,23 @@ func main() {
 	if err != nil {
 		logger.Fatalw("Server failed to create CEL resolver", zap.Error(err))
 	}
+
+	kubeClient, err := kubeclientset.NewForConfig(kubeCfg)
+	if err != nil {
+		logger.Errorf("failed to create new Clientset for the given config: %v", err)
+	}
+	keyFile, certFile, _, err := server.CreateCerts(ctx, kubeClient.CoreV1(), logger)
+	crt, err := tls.X509KeyPair([]byte(certFile), []byte(keyFile))
+	if err != nil {
+		logger.Fatalw("Server failed to create CEL resolver", zap.Error(err))
+	}
+
 	p := pool.NewLimited(cfg.Workers)
 	svc := pipelineconfigtrigger.NewService(tektonClient, p)
 	mux := newMux(svc, resolver, logger)
 	srv := &http.Server{
 		Addr:         cfg.Addr,
+		TLSConfig:    &tls.Config{Certificates: []tls.Certificate{crt}},
 		ReadTimeout:  readTimeout,
 		WriteTimeout: writeTimeout,
 		IdleTimeout:  idleTimeout,
