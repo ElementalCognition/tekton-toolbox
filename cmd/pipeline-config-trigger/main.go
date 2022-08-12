@@ -21,13 +21,13 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/spf13/pflag"
 	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
-	"github.com/tektoncd/triggers/pkg/interceptors/server"
 	"go.uber.org/zap"
 	"gopkg.in/go-playground/pool.v3"
-	kubeclientset "k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"knative.dev/pkg/injection"
 	"knative.dev/pkg/logging"
+	"knative.dev/pkg/system"
+	"knative.dev/pkg/webhook/certificates/resources"
 )
 
 type config struct {
@@ -98,11 +98,13 @@ func main() {
 		logger.Fatalw("Server failed to create CEL resolver", zap.Error(err))
 	}
 
-	kubeClient, err := kubeclientset.NewForConfig(kubeCfg)
-	if err != nil {
-		logger.Errorf("failed to create new Clientset for the given config: %v", err)
-	}
-	keyFile, certFile, _, err := server.CreateCerts(ctx, kubeClient.CoreV1(), logger)
+	// kubeClient, err := kubeclientset.NewForConfig(kubeCfg)
+	// if err != nil {
+	// 	logger.Errorf("failed to create new Clientset for the given config: %v", err)
+	// }
+
+	expiration := time.Now().AddDate(10, 0, 0)
+	keyFile, certFile, _, err := resources.CreateCerts(ctx, "pipeline-config-trigger-tls", system.Namespace(), expiration)
 	if err != nil {
 		fmt.Println(certFile, keyFile)
 		logger.Fatalw("Server failed to create Certs", zap.Error(err))
