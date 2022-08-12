@@ -69,7 +69,7 @@ func newMux(
 
 func init() {
 	flag.String("config", "", "The path to the config file.")
-	flag.String("addr", "0.0.0.0:8443", "The address and port.")
+	flag.String("addr", "0.0.0.0:443", "The address and port.")
 	flag.Int("workers", runtime.NumCPU(), "The number of workers to trigger pipelines.")
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
