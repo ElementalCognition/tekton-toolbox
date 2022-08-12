@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"flag"
+	"fmt"
 	"net"
 	"net/http"
 	"runtime"
@@ -102,9 +103,13 @@ func main() {
 		logger.Errorf("failed to create new Clientset for the given config: %v", err)
 	}
 	keyFile, certFile, _, err := server.CreateCerts(ctx, kubeClient.CoreV1(), logger)
+	if err != nil {
+		fmt.Println(certFile, keyFile)
+		logger.Fatalw("Server failed to create Certs", zap.Error(err))
+	}
 	crt, err := tls.X509KeyPair([]byte(certFile), []byte(keyFile))
 	if err != nil {
-		logger.Fatalw("Server failed to create CEL resolver", zap.Error(err))
+		logger.Fatalw("Server failed to create X509KeyPair", zap.Error(err))
 	}
 
 	p := pool.NewLimited(cfg.Workers)
