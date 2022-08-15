@@ -2,12 +2,15 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"flag"
 	"net"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/ElementalCognition/tekton-toolbox/internal/chimiddleware"
+	"github.com/ElementalCognition/tekton-toolbox/internal/clusterinterceptorupdater"
 	"github.com/ElementalCognition/tekton-toolbox/internal/knativeinjection"
 	"github.com/ElementalCognition/tekton-toolbox/internal/serversignals"
 	"github.com/ElementalCognition/tekton-toolbox/internal/viperconfig"
@@ -23,6 +26,7 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"knative.dev/pkg/injection"
 	"knative.dev/pkg/logging"
+	"knative.dev/pkg/signals"
 )
 
 type config struct {
@@ -72,7 +76,7 @@ func newMux(
 
 func init() {
 	flag.String("config", "", "The path to the config file.")
-	flag.String("addr", "0.0.0.0:80", "The address and port.")
+	flag.String("addr", "0.0.0.0:8443", "The address and port.")
 	flag.Int64("github-app-id", 0, "GitHub App ID.")
 	flag.Int64("github-installation-id", 0, "GitHub Installation ID.")
 	flag.String("github-app-key", "", "GitHub App key.")
@@ -81,8 +85,9 @@ func init() {
 }
 
 func main() {
+	ctx := signals.NewContext()
 	kubeCfg := injection.ParseAndGetRESTConfigOrDie()
-	ctx := knativeinjection.EnableInjectionOrDie(kubeCfg)
+	ctx, startInformer := injection.EnableInjectionOrDie(ctx, kubeCfg)
 	logger := knativeinjection.SetupLoggerOrDie(ctx, component)
 	ctx = logging.WithLogger(ctx, logger)
 	viperCfg, err := viperconfig.NewConfig(component, pflag.CommandLine)
@@ -99,9 +104,23 @@ func main() {
 		logger.Fatalw("Server failed to create GitHub client", zap.Error(err))
 	}
 	svc := githubstatussync.NewService(githubClient)
+	startInformer()
+	intercepterName, ok := os.LookupEnv("INTERCEPTER_NAME")
+	if !ok {
+		intercepterName = "github-status-sync"
+	}
+	crt, caCert, err := clusterinterceptorupdater.GenerateCertificates(ctx, intercepterName)
+	if err != nil {
+		logger.Fatalw("Failed to generate certificates", zap.Error(err))
+	}
+	err = clusterinterceptorupdater.UpdateIntercepterCaBundle(ctx, intercepterName, caCert, kubeCfg, logger)
+	if err != nil {
+		logger.Fatalw("Failed to update cluster intercepter caBundle", zap.Error(err))
+	}
 	mux := newMux(svc, logger)
 	srv := &http.Server{
 		Addr:         cfg.Addr,
+		TLSConfig:    &tls.Config{Certificates: []tls.Certificate{*crt}},
 		ReadTimeout:  readTimeout,
 		WriteTimeout: writeTimeout,
 		IdleTimeout:  idleTimeout,
