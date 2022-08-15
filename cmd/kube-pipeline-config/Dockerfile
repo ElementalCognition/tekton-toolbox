@@ -1,4 +1,4 @@
-ARG GO_VERSION="1.17"
+ARG GO_VERSION="1.18"
 FROM golang:${GO_VERSION}-alpine as base
 ENV GOPROXY="https://artifacts.src.ec.ai/artifactory/api/go/go-all"
 WORKDIR /go/src/github.com/ElementalCognition/tekton-toolbox

@@ -2,8 +2,16 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"flag"
+	"net"
+	"net/http"
+	"os"
+	"runtime"
+	"time"
+
 	"github.com/ElementalCognition/tekton-toolbox/internal/chimiddleware"
+	"github.com/ElementalCognition/tekton-toolbox/internal/clusterinterceptorupdater"
 	"github.com/ElementalCognition/tekton-toolbox/internal/knativeinjection"
 	"github.com/ElementalCognition/tekton-toolbox/internal/serversignals"
 	"github.com/ElementalCognition/tekton-toolbox/internal/viperconfig"
@@ -19,10 +27,7 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"knative.dev/pkg/injection"
 	"knative.dev/pkg/logging"
-	"net"
-	"net/http"
-	"runtime"
-	"time"
+	"knative.dev/pkg/signals"
 )
 
 type config struct {
@@ -64,15 +69,16 @@ func newMux(
 
 func init() {
 	flag.String("config", "", "The path to the config file.")
-	flag.String("addr", "0.0.0.0:80", "The address and port.")
+	flag.String("addr", "0.0.0.0:8443", "The address and port.")
 	flag.Int("workers", runtime.NumCPU(), "The number of workers to trigger pipelines.")
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
 }
 
 func main() {
+	ctx := signals.NewContext()
 	kubeCfg := injection.ParseAndGetRESTConfigOrDie()
-	ctx := knativeinjection.EnableInjectionOrDie(kubeCfg)
+	ctx, startInformer := injection.EnableInjectionOrDie(ctx, kubeCfg)
 	logger := knativeinjection.SetupLoggerOrDie(ctx, component)
 	ctx = logging.WithLogger(ctx, logger)
 	viperCfg, err := viperconfig.NewConfig(component, pflag.CommandLine)
@@ -92,11 +98,25 @@ func main() {
 	if err != nil {
 		logger.Fatalw("Server failed to create CEL resolver", zap.Error(err))
 	}
+	startInformer()
+	intercepterName, ok := os.LookupEnv("INTERCEPTER_NAME")
+	if !ok {
+		intercepterName = "pipeline-config-trigger"
+	}
+	crt, caCert, err := clusterinterceptorupdater.GenerateCertificates(ctx, intercepterName)
+	if err != nil {
+		logger.Fatalw("Failed to generate certificates", zap.Error(err))
+	}
+	err = clusterinterceptorupdater.UpdateIntercepterCaBundle(ctx, intercepterName, caCert, kubeCfg, logger)
+	if err != nil {
+		logger.Fatalw("Failed to update cluster intercepter caBundle", zap.Error(err))
+	}
 	p := pool.NewLimited(cfg.Workers)
 	svc := pipelineconfigtrigger.NewService(tektonClient, p)
 	mux := newMux(svc, resolver, logger)
 	srv := &http.Server{
 		Addr:         cfg.Addr,
+		TLSConfig:    &tls.Config{Certificates: []tls.Certificate{*crt}},
 		ReadTimeout:  readTimeout,
 		WriteTimeout: writeTimeout,
 		IdleTimeout:  idleTimeout,

@@ -1,4 +1,4 @@
-ARG GO_VERSION="1.17"
+ARG GO_VERSION="1.18"
 FROM golang:${GO_VERSION}-alpine as base
 ENV GOPROXY="https://artifacts.src.ec.ai/artifactory/api/go/go-all"
 WORKDIR /go/src/github.com/ElementalCognition/tekton-toolbox
@@ -15,6 +15,6 @@ RUN --mount=type=cache,id=gomod,target=/go/pkg/mod \
     --mount=type=cache,id=gobuild,target=/root/.cache/go-build \
     go build -o /go/bin/pipeline-config-trigger ./cmd/pipeline-config-trigger
 
-FROM alpine:3.14
+FROM alpine:3.16.2
 COPY --from=build /go/bin/pipeline-config-trigger /usr/local/bin/pipeline-config-trigger
 CMD ["pipeline-config-trigger"]

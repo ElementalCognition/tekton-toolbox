@@ -2,13 +2,14 @@ package serversignals
 
 import (
 	"context"
-	"go.uber.org/zap"
-	"golang.org/x/sync/errgroup"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
 )
 
 type Server struct {
@@ -53,10 +54,10 @@ func (s *Server) WaitSignalsThenShutdown(ctx context.Context) error {
 	return g.Wait()
 }
 
-func (s *Server) ListenAndServe() error {
+func (s *Server) ListenAndServeTLS() error {
 	s.Logger.Infow("Server started")
 	s.Logger.Infow("Server listen and serve", zap.String("addr", s.Addr))
-	return s.Server.ListenAndServe()
+	return s.Server.ListenAndServeTLS("", "")
 }
 
 func (s *Server) StartAndWaitSignalsThenShutdown(ctx context.Context) error {
@@ -65,7 +66,7 @@ func (s *Server) StartAndWaitSignalsThenShutdown(ctx context.Context) error {
 		return s.WaitSignalsThenShutdown(ctx)
 	})
 	g.Go(func() error {
-		return s.ListenAndServe()
+		return s.ListenAndServeTLS()
 	})
 	return g.Wait()
 }
