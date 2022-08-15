@@ -31,7 +31,7 @@ func GenerateCertificates(ctx context.Context, inName string) (*tls.Certificate,
 	return &crt, caCert, nil
 }
 
-// Update Cluster intercepter CaBundle, in intercepter name
+// Update Cluster intercepter CaBundle.
 func UpdateIntercepterCaBundle(ctx context.Context, inName string, caCert []byte, c *rest.Config, log *zap.SugaredLogger) error {
 	tc, err := triggersclientset.NewForConfig(c)
 	if err != nil {
@@ -57,7 +57,7 @@ func UpdateIntercepterCaBundle(ctx context.Context, inName string, caCert []byte
 	go func(wi watch.Interface) {
 		for {
 			switch event := <-wi.ResultChan(); event.Type {
-			case "MODIFIED": //"ADDED",
+			case "MODIFIED", "ADDED":
 				log.Info("Clusterinterceptor was added ", inName)
 				intercepter, err := clusterinterceptorsinformer.Get(ctx).Lister().Get(inName)
 				if err != nil {
