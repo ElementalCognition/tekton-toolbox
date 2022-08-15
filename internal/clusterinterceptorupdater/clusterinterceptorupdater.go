@@ -32,54 +32,54 @@ func GenerateCertificates(ctx context.Context, inName string) (*tls.Certificate,
 }
 
 // Update Cluster intercepter CaBundle, in intercepter name
-func UpdateIntercepterCaBundle(ctx context.Context, inName string, caCert []byte, c *rest.Config) error {
+func UpdateIntercepterCaBundle(ctx context.Context, inName string, caCert []byte, c *rest.Config, log *zap.SugaredLogger) error {
 	tc, err := triggersclientset.NewForConfig(c)
 	if err != nil {
 		return err
 	}
 	intercepter, err := clusterinterceptorsinformer.Get(ctx).Lister().Get(inName)
 	if err != nil {
-		fmt.Println("Server failed to get clusterinterceptor by name, probabley clusterinterceptor wasn't created yet ", err)
+		log.Info("Server failed to get clusterinterceptor by name, probabley clusterinterceptor wasn't created yet ", zap.Error(err))
 	} else {
 		// update cert on creation if the clusterinterceptor exists
 		intercepter.Spec.ClientConfig.CaBundle = caCert
 		if _, err = tc.TriggersV1alpha1().ClusterInterceptors().Update(ctx, intercepter, metav1.UpdateOptions{TypeMeta: metav1.TypeMeta{Kind: "ClusterInterceptor"},
 			FieldManager: "pipeline-config-trigger"}); err != nil {
-			fmt.Println("Server failed to update clusterinterceptor cabundle", err)
+			log.Info("Server failed to update clusterinterceptor cabundle", zap.Error(err))
 		}
 	}
 	wi, _ := tc.TriggersV1alpha1().ClusterInterceptors().Watch(ctx, metav1.ListOptions{TypeMeta: metav1.TypeMeta{Kind: "ClusterInterceptor"},
 		FieldSelector: fmt.Sprintf("metadata.name=%s", inName)})
 	if err != nil {
-		fmt.Println("Server failed to watch ClusterInterceptors", err)
+		log.Info("Server failed to watch ClusterInterceptors", zap.Error(err))
 	}
-	fmt.Println("Watching clusterInterceptor: ", inName)
+	log.Info("Watching clusterInterceptor: ", inName)
 	go func(wi watch.Interface) {
 		for {
 			switch event := <-wi.ResultChan(); event.Type {
 			case "MODIFIED": //"ADDED",
-				fmt.Println("Clusterinterceptor was added ", inName)
+				log.Info("Clusterinterceptor was added ", inName)
 				intercepter, err := clusterinterceptorsinformer.Get(ctx).Lister().Get(inName)
 				if err != nil {
-					fmt.Println("Server failed to get clusterinterceptor by name, probabley clusterinterceptor wasn't created yet", err)
+					log.Info("Server failed to get clusterinterceptor by name, probabley clusterinterceptor wasn't created yet", zap.Error(err))
 					break
 				}
 				if res := bytes.Compare(intercepter.Spec.ClientConfig.CaBundle, caCert); res == 0 {
-					fmt.Println("CaBundle is up to date, there is nothing to change.")
+					log.Info("CaBundle is up to date, there is nothing to change.")
 					break
 				}
 				intercepter.Spec.ClientConfig.CaBundle = caCert
 				if err != nil {
-					fmt.Println("Server failed to get clusterinterceptor by name, probabley clusterinterceptor wasn't created yet", zap.Error(err))
+					log.Info("Server failed to get clusterinterceptor by name, probabley clusterinterceptor wasn't created yet", zap.Error(err))
 				}
 				if _, err = tc.TriggersV1alpha1().ClusterInterceptors().Update(ctx, intercepter, metav1.UpdateOptions{TypeMeta: metav1.TypeMeta{Kind: "ClusterInterceptor"},
 					FieldManager: "pipeline-config-trigger"}); err != nil {
-					fmt.Println("Server failed to update clusterinterceptor cabundle", err)
+					log.Info("Server failed to update clusterinterceptor cabundle", zap.Error(err))
 				}
 			case "DELETED":
-				fmt.Println("ClusterInterceptor was deleted: ", inName)
+				log.Info("ClusterInterceptor was deleted: ", inName)
 			case "ERROR":
-				fmt.Println("ClusterInterceptor event ERROR: ", event.Object)
+				log.Info("ClusterInterceptor event ERROR: ", event.Object)
 			}
 		}
 	}(wi)
