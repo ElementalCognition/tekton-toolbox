@@ -99,7 +99,6 @@ func main() {
 	if err != nil {
 		logger.Fatalw("Server failed to start Kubernetes service", zap.Error(err))
 	}
-
 	startInformer()
 	intercepterName, ok := os.LookupEnv("INTERCEPTER_NAME")
 	if !ok {
@@ -113,7 +112,6 @@ func main() {
 	if err != nil {
 		logger.Fatalw("Failed to update cluster intercepter caBundle", zap.Error(err))
 	}
-
 	mux := newMux(svc, resolver, logger)
 	srv := &http.Server{
 		Addr:         cfg.Addr,
