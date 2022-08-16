@@ -3,19 +3,21 @@ package clusterinterceptorupdater
 import (
 	"bytes"
 	"context"
-	"crypto/tls"
 	"fmt"
 	"os"
 	"time"
 
+	"github.com/tektoncd/triggers/pkg/apis/triggers/v1alpha1"
 	"go.uber.org/zap"
-	"k8s.io/apimachinery/pkg/watch"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/rest"
 	"knative.dev/pkg/webhook/certificates/resources"
 
 	triggersclientset "github.com/tektoncd/triggers/pkg/client/clientset/versioned"
 	clusterinterceptorsinformer "github.com/tektoncd/triggers/pkg/client/injection/informers/triggers/v1alpha1/clusterinterceptor"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 )
 
 func getNamespace() string {
@@ -25,77 +27,94 @@ func getNamespace() string {
 	return "tekton-pipelines"
 }
 
-func GenerateCertificates(ctx context.Context, inName string) (*tls.Certificate, []byte, error) {
+func GenerateCertificates(ctx context.Context, ciName string) ([]byte, []byte, []byte, error) {
 	expiration := time.Now().AddDate(10, 0, 0)
 	ns := getNamespace()
-	fmt.Printf("Generate certificates for svc %s in %s namespace.\n", inName, ns)
-	key, cert, caCert, err := resources.CreateCerts(ctx, inName, ns, expiration)
+	fmt.Printf("Generate certificates for svc %s in %s namespace.\n", ciName, ns)
+	key, cert, caCert, err := resources.CreateCerts(ctx, ciName, ns, expiration)
 	if err != nil {
-		return &tls.Certificate{}, nil, err
+		return nil, nil, nil, err
 	}
-	crt, err := tls.X509KeyPair(cert, key)
+	return key, cert, caCert, nil
+}
+
+func GetCreatCertsSecret(ctx context.Context, coreV1Interface corev1.CoreV1Interface, log *zap.SugaredLogger,
+	key []byte, cert []byte, cacert []byte, sn, ns string) (*v1.Secret, error) {
+	s, err := coreV1Interface.Secrets(ns).Get(ctx, sn, metav1.GetOptions{})
 	if err != nil {
-		return &tls.Certificate{}, nil, err
+		if apierrors.IsNotFound(err) {
+			log.Infof("secret %s is missing, creating", sn)
+			secret := &v1.Secret{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Secret",
+					APIVersion: "v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      sn,
+					Namespace: ns,
+				},
+				Data: map[string][]byte{
+					"ca-cert.pem":     cacert,
+					"server-cert.pem": cert,
+					"server-key.pem":  key,
+				},
+				Type: "Opaque",
+			}
+			s, err := coreV1Interface.Secrets(ns).Create(ctx, secret, metav1.CreateOptions{})
+			if err != nil {
+				log.Fatalf("Failed to create %s secret in %s namespace.", sn, ns)
+			}
+			return s, nil
+		}
+		log.Infof("error accessing certificate secret %s: %v", sn, err)
+		return nil, err
 	}
-	caBundle := bytes.Join([][]byte{key, cert, caCert}, []byte(""))
-	return &crt, caBundle, nil
+	log.Infof("Secret %s exists.", s.Name)
+	return s, nil
 }
 
 // Update Cluster intercepter CaBundle.
-func UpdateIntercepterCaBundle(ctx context.Context, inName string, caCert []byte, c *rest.Config, log *zap.SugaredLogger) error {
+func CreateUpdateIntercepterCaBundle(ctx context.Context, ciName string, ns string, caCert []byte, c *rest.Config, log *zap.SugaredLogger) error {
 	tc, err := triggersclientset.NewForConfig(c)
 	if err != nil {
 		return err
 	}
-	intercepter, err := clusterinterceptorsinformer.Get(ctx).Lister().Get(inName)
+	ci, err := clusterinterceptorsinformer.Get(ctx).Lister().Get(ciName)
 	if err != nil {
-		log.Info("Server failed to get clusterinterceptor by name, probabley clusterinterceptor wasn't created yet ", zap.Error(err))
-	} else {
-		// update cert on creation if the clusterinterceptor exists
-		intercepter.Spec.ClientConfig.CaBundle = caCert
-		if _, err = tc.TriggersV1alpha1().ClusterInterceptors().Update(ctx, intercepter, metav1.UpdateOptions{TypeMeta: metav1.TypeMeta{Kind: "ClusterInterceptor"},
-			FieldManager: "pipeline-config-trigger"}); err != nil {
-			log.Info("Server failed to update clusterinterceptor cabundle", zap.Error(err))
+		log.Info("Server failed to get clusterinterceptor by name, probably clusterinterceptor wasn't created yet ", zap.Error(err))
+		var port int32 = 8443
+		ci := &v1alpha1.ClusterInterceptor{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "ClusterInterceptor",
+				APIVersion: "triggers.tekton.dev/v1alpha1",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name: ciName,
+				Labels: map[string]string{
+					"server/type": "https",
+				},
+			},
+			Spec: v1alpha1.ClusterInterceptorSpec{ClientConfig: v1alpha1.ClientConfig{
+				CaBundle: caCert,
+				Service: &v1alpha1.ServiceReference{
+					Name:      ciName,
+					Namespace: ns,
+					Path:      "/",
+					Port:      &port,
+				},
+			}},
 		}
-	}
-	wi, _ := tc.TriggersV1alpha1().ClusterInterceptors().Watch(ctx, metav1.ListOptions{TypeMeta: metav1.TypeMeta{Kind: "ClusterInterceptor"},
-		FieldSelector: fmt.Sprintf("metadata.name=%s", inName)})
-	if err != nil {
-		log.Info("Server failed to watch ClusterInterceptors", zap.Error(err))
-	}
-	log.Info("Watching clusterInterceptor: ", inName)
-	go func(wi watch.Interface) {
-		for {
-			switch event := <-wi.ResultChan(); event.Type {
-			case "MODIFIED", "ADDED":
-				log.Info("Clusterinterceptor was added ", inName)
-				intercepter, err := clusterinterceptorsinformer.Get(ctx).Lister().Get(inName)
-				if err != nil {
-					log.Info("Server failed to get clusterinterceptor by name, probabley clusterinterceptor wasn't created yet", zap.Error(err))
-					break
-				}
-				if res := bytes.Compare(intercepter.Spec.ClientConfig.CaBundle, caCert); res == 0 {
-					log.Info("CaBundle is up to date, there is nothing to change.")
-					break
-				}
-				intercepter.Spec.ClientConfig.CaBundle = caCert
-				if err != nil {
-					log.Info("Server failed to get clusterinterceptor by name, probabley clusterinterceptor wasn't created yet", zap.Error(err))
-				}
-				if _, err = tc.TriggersV1alpha1().ClusterInterceptors().Update(ctx, intercepter, metav1.UpdateOptions{TypeMeta: metav1.TypeMeta{Kind: "ClusterInterceptor"},
-					FieldManager: "pipeline-config-trigger"}); err != nil {
-					log.Info("Server failed to update clusterinterceptor cabundle", zap.Error(err))
-				}
-			case "DELETED":
-				log.Info("ClusterInterceptor was deleted: ", inName)
-			case "ERROR":
-				log.Info("ClusterInterceptor event ERROR: ", event.Object)
+		if _, err = tc.TriggersV1alpha1().ClusterInterceptors().Create(ctx, ci, metav1.CreateOptions{}); err != nil {
+			log.Fatalf("Server failed to create clusterinterceptor with caBundle", zap.Error(err))
+		}
+	} else {
+		// update cert on creation if the clusterinterceptor exists and caBundle is different from caCert
+		if !bytes.Equal(ci.Spec.ClientConfig.CaBundle, caCert) {
+			ci.Spec.ClientConfig.CaBundle = caCert
+			if _, err = tc.TriggersV1alpha1().ClusterInterceptors().Update(ctx, ci, metav1.UpdateOptions{FieldManager: "custom-interceptor"}); err != nil {
+				log.Fatalf("Server failed to update clusterinterceptor caBundle", zap.Error(err))
 			}
 		}
-	}(wi)
-	go func(wi watch.Interface, ctx context.Context) {
-		<-ctx.Done()
-		wi.Stop()
-	}(wi, ctx)
+	}
 	return nil
 }
