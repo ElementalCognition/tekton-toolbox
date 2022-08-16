@@ -27,18 +27,21 @@ func getNamespace() string {
 
 func GenerateCertificates(ctx context.Context, inName string) (*tls.Certificate, []byte, error) {
 	expiration := time.Now().AddDate(10, 0, 0)
-	key, cert, caCert, err := resources.CreateCerts(ctx, inName, getNamespace(), expiration)
+	ns := getNamespace()
+	fmt.Printf("Generate certificates for svc %s in %s namespace.\n", inName, ns)
+	key, cert, caCert, err := resources.CreateCerts(ctx, inName, ns, expiration)
 	if err != nil {
 		return &tls.Certificate{}, nil, err
 	}
-	crt, err := tls.X509KeyPair([]byte(cert), []byte(key))
+	crt, err := tls.X509KeyPair(cert, key)
 	if err != nil {
 		return &tls.Certificate{}, nil, err
 	}
-	return &crt, caCert, nil
+	caBundle := append(caCert, cert...)
+	return &crt, caBundle, nil
 }
 
-// Update Cluster intercepter CaBundle
+// Update Cluster intercepter CaBundle.
 func UpdateIntercepterCaBundle(ctx context.Context, inName string, caCert []byte, c *rest.Config, log *zap.SugaredLogger) error {
 	tc, err := triggersclientset.NewForConfig(c)
 	if err != nil {
@@ -64,7 +67,7 @@ func UpdateIntercepterCaBundle(ctx context.Context, inName string, caCert []byte
 	go func(wi watch.Interface) {
 		for {
 			switch event := <-wi.ResultChan(); event.Type {
-			case "MODIFIED": //"ADDED",
+			case "MODIFIED", "ADDED":
 				log.Info("Clusterinterceptor was added ", inName)
 				intercepter, err := clusterinterceptorsinformer.Get(ctx).Lister().Get(inName)
 				if err != nil {
