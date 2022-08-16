@@ -27,7 +27,9 @@ func getNamespace() string {
 
 func GenerateCertificates(ctx context.Context, inName string) (*tls.Certificate, []byte, error) {
 	expiration := time.Now().AddDate(10, 0, 0)
-	key, cert, caCert, err := resources.CreateCerts(ctx, inName, getNamespace(), expiration)
+	ns := getNamespace()
+	fmt.Printf("Generate certificates for svc %s in %s namespace.\n", inName, ns)
+	key, cert, caCert, err := resources.CreateCerts(ctx, inName, ns, expiration)
 	if err != nil {
 		return &tls.Certificate{}, nil, err
 	}
