@@ -5,12 +5,12 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"os"
 	"time"
 
 	"go.uber.org/zap"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/rest"
-	"knative.dev/pkg/system"
 	"knative.dev/pkg/webhook/certificates/resources"
 
 	triggersclientset "github.com/tektoncd/triggers/pkg/client/clientset/versioned"
@@ -18,9 +18,16 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+func getNamespace() string {
+	if ns := os.Getenv("SVC_NAMESPACE"); ns != "" {
+		return ns
+	}
+	return "tekton-pipelines"
+}
+
 func GenerateCertificates(ctx context.Context, inName string) (*tls.Certificate, []byte, error) {
 	expiration := time.Now().AddDate(10, 0, 0)
-	key, cert, caCert, err := resources.CreateCerts(ctx, inName, system.Namespace(), expiration)
+	key, cert, caCert, err := resources.CreateCerts(ctx, inName, getNamespace(), expiration)
 	if err != nil {
 		return &tls.Certificate{}, nil, err
 	}
@@ -31,7 +38,7 @@ func GenerateCertificates(ctx context.Context, inName string) (*tls.Certificate,
 	return &crt, caCert, nil
 }
 
-// Update Cluster intercepter CaBundle, in intercepter name
+// Update Cluster intercepter CaBundle
 func UpdateIntercepterCaBundle(ctx context.Context, inName string, caCert []byte, c *rest.Config, log *zap.SugaredLogger) error {
 	tc, err := triggersclientset.NewForConfig(c)
 	if err != nil {
