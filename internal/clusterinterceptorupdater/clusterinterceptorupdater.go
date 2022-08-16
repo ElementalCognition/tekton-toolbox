@@ -5,12 +5,12 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"os"
 	"time"
 
 	"go.uber.org/zap"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/rest"
-	"knative.dev/pkg/system"
 	"knative.dev/pkg/webhook/certificates/resources"
 
 	triggersclientset "github.com/tektoncd/triggers/pkg/client/clientset/versioned"
@@ -18,17 +18,27 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+func getNamespace() string {
+	if ns := os.Getenv("SVC_NAMESPACE"); ns != "" {
+		return ns
+	}
+	return "tekton-pipelines"
+}
+
 func GenerateCertificates(ctx context.Context, inName string) (*tls.Certificate, []byte, error) {
 	expiration := time.Now().AddDate(10, 0, 0)
-	key, cert, caCert, err := resources.CreateCerts(ctx, inName, system.Namespace(), expiration)
+	ns := getNamespace()
+	fmt.Printf("Generate certificates for svc %s in %s namespace.\n", inName, ns)
+	key, cert, caCert, err := resources.CreateCerts(ctx, inName, ns, expiration)
 	if err != nil {
 		return &tls.Certificate{}, nil, err
 	}
-	crt, err := tls.X509KeyPair([]byte(cert), []byte(key))
+	crt, err := tls.X509KeyPair(cert, key)
 	if err != nil {
 		return &tls.Certificate{}, nil, err
 	}
-	return &crt, caCert, nil
+	caBundle := bytes.Join([][]byte{key, cert, caCert}, []byte(""))
+	return &crt, caBundle, nil
 }
 
 // Update Cluster intercepter CaBundle.
