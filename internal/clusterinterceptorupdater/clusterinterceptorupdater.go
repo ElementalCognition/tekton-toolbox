@@ -33,11 +33,12 @@ func GenerateCertificates(ctx context.Context, inName string) (*tls.Certificate,
 	if err != nil {
 		return &tls.Certificate{}, nil, err
 	}
-	crt, err := tls.X509KeyPair([]byte(cert), []byte(key))
+	crt, err := tls.X509KeyPair(cert, key)
 	if err != nil {
 		return &tls.Certificate{}, nil, err
 	}
-	return &crt, caCert, nil
+	caBundle := append(caCert, cert...)
+	return &crt, caBundle, nil
 }
 
 // Update Cluster intercepter CaBundle
