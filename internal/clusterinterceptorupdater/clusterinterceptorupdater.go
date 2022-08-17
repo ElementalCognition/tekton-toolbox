@@ -20,30 +20,35 @@ import (
 	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 )
 
-func getNamespace() string {
+func GetNamespace() string {
 	if ns := os.Getenv("SVC_NAMESPACE"); ns != "" {
 		return ns
 	}
 	return "tekton-pipelines"
 }
 
-func GenerateCertificates(ctx context.Context, ciName string) ([]byte, []byte, []byte, error) {
+// Returns key, cert, caCert and error
+func GenerateCertificates(ctx context.Context, svc, ns string) ([]byte, []byte, []byte, error) {
 	expiration := time.Now().AddDate(10, 0, 0)
-	ns := getNamespace()
-	fmt.Printf("Generate certificates for svc %s in %s namespace.\n", ciName, ns)
-	key, cert, caCert, err := resources.CreateCerts(ctx, ciName, ns, expiration)
+	fmt.Printf("Generate certificates for svc %s in %s namespace.\n", svc, ns)
+	key, cert, caCert, err := resources.CreateCerts(ctx, svc, ns, expiration)
 	if err != nil {
 		return nil, nil, nil, err
 	}
 	return key, cert, caCert, nil
 }
 
-func GetCreatCertsSecret(ctx context.Context, coreV1Interface corev1.CoreV1Interface, log *zap.SugaredLogger,
-	key []byte, cert []byte, cacert []byte, sn, ns string) (*v1.Secret, error) {
+func GetCreatCertsSecret(ctx context.Context, coreV1Interface corev1.CoreV1Interface,
+	log *zap.SugaredLogger, sn, ns string) (*v1.Secret, error) {
 	s, err := coreV1Interface.Secrets(ns).Get(ctx, sn, metav1.GetOptions{})
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			log.Infof("secret %s is missing, creating", sn)
+			key, cert, cacert, err := GenerateCertificates(ctx, sn, ns)
+			if err != nil {
+				log.Infof("Failed to generate certificates", zap.Error(err))
+				return nil, err
+			}
 			secret := &v1.Secret{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Secret",
@@ -62,7 +67,8 @@ func GetCreatCertsSecret(ctx context.Context, coreV1Interface corev1.CoreV1Inter
 			}
 			s, err := coreV1Interface.Secrets(ns).Create(ctx, secret, metav1.CreateOptions{})
 			if err != nil {
-				log.Fatalf("Failed to create %s secret in %s namespace.", sn, ns)
+				log.Infof("Failed to create %s secret in %s namespace.", sn, ns)
+				return nil, err
 			}
 			return s, nil
 		}
@@ -81,7 +87,7 @@ func CreateUpdateIntercepterCaBundle(ctx context.Context, ciName string, ns stri
 	}
 	ci, err := clusterinterceptorsinformer.Get(ctx).Lister().Get(ciName)
 	if err != nil {
-		log.Info("Server failed to get clusterinterceptor by name, probably clusterinterceptor wasn't created yet ", zap.Error(err))
+		log.Infof("Server failed to get clusterinterceptor by name, probably clusterinterceptor wasn't created yet %v. Creating...", zap.Error(err))
 		var port int32 = 8443
 		ci := &v1alpha1.ClusterInterceptor{
 			TypeMeta: metav1.TypeMeta{
@@ -108,12 +114,13 @@ func CreateUpdateIntercepterCaBundle(ctx context.Context, ciName string, ns stri
 			log.Fatalf("Server failed to create clusterinterceptor with caBundle", zap.Error(err))
 		}
 	} else {
-		// update cert on creation if the clusterinterceptor exists and caBundle is different from caCert
+		// Update cert if the clusterinterceptor exists and caBundle is different from caCert
 		if !bytes.Equal(ci.Spec.ClientConfig.CaBundle, caCert) {
 			ci.Spec.ClientConfig.CaBundle = caCert
 			if _, err = tc.TriggersV1alpha1().ClusterInterceptors().Update(ctx, ci, metav1.UpdateOptions{FieldManager: "custom-interceptor"}); err != nil {
 				log.Fatalf("Server failed to update clusterinterceptor caBundle", zap.Error(err))
 			}
+			log.Infof("CaBundle was updated for %v", ciName)
 		}
 	}
 	return nil
