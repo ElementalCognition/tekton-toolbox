@@ -3,6 +3,7 @@ package clusterinterceptorupdater
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"fmt"
 	"os"
 	"time"
@@ -18,6 +19,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
+	kubeclient "knative.dev/pkg/client/injection/kube/client"
 )
 
 func GetNamespace() string {
@@ -28,7 +30,7 @@ func GetNamespace() string {
 }
 
 // Returns key, cert, caCert and error.
-func GenerateCertificates(ctx context.Context, svc, ns string) ([]byte, []byte, []byte, error) {
+func generateCertificates(ctx context.Context, svc, ns string) ([]byte, []byte, []byte, error) {
 	expiration := time.Now().AddDate(10, 0, 0)
 	fmt.Printf("Generate certificates for svc %s in %s namespace.\n", svc, ns)
 	key, cert, caCert, err := resources.CreateCerts(ctx, svc, ns, expiration)
@@ -38,13 +40,13 @@ func GenerateCertificates(ctx context.Context, svc, ns string) ([]byte, []byte, 
 	return key, cert, caCert, nil
 }
 
-func GetCreateCertsSecret(ctx context.Context, coreV1Interface corev1.CoreV1Interface,
+func getCreateCertsSecret(ctx context.Context, coreV1Interface corev1.CoreV1Interface,
 	log *zap.SugaredLogger, sn, ns string) (*v1.Secret, error) {
 	s, err := coreV1Interface.Secrets(ns).Get(ctx, sn, metav1.GetOptions{})
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			log.Infof("secret %s is missing, creating", sn)
-			key, cert, cacert, err := GenerateCertificates(ctx, sn, ns)
+			key, cert, cacert, err := generateCertificates(ctx, sn, ns)
 			if err != nil {
 				log.Infof("Failed to generate certificates", zap.Error(err))
 				return nil, err
@@ -80,7 +82,7 @@ func GetCreateCertsSecret(ctx context.Context, coreV1Interface corev1.CoreV1Inte
 }
 
 // Update Cluster intercepter CaBundle.
-func CreateUpdateIntercepterCaBundle(ctx context.Context, ciName string, ns string, caCert []byte, c *rest.Config, log *zap.SugaredLogger) error {
+func createUpdateIntercepterCaBundle(ctx context.Context, ciName string, ns string, caCert []byte, c *rest.Config, log *zap.SugaredLogger) error {
 	tc, err := triggersclientset.NewForConfig(c)
 	if err != nil {
 		return err
@@ -122,4 +124,20 @@ func CreateUpdateIntercepterCaBundle(ctx context.Context, ciName string, ns stri
 		log.Infof("CaBundle was updated for %v", ciName)
 	}
 	return nil
+}
+
+func PrepareTLS(ctx context.Context, logger *zap.SugaredLogger, rc *rest.Config, n, ns string) tls.Certificate {
+	secret, err := getCreateCertsSecret(ctx, kubeclient.Get(ctx).CoreV1(), logger, n, ns)
+	if err != nil {
+		logger.Fatalw("Failed to get or create k8s secret with certificates", zap.Error(err))
+	}
+	err = createUpdateIntercepterCaBundle(ctx, n, ns, secret.Data["ca-cert.pem"], rc, logger)
+	if err != nil {
+		logger.Fatalw("Failed to create or update clusterinterceptor", zap.Error(err))
+	}
+	certs, err := tls.X509KeyPair(secret.Data["server-cert.pem"], secret.Data["server-key.pem"])
+	if err != nil {
+		logger.Fatalw("Failed to create X509KeyPair from k8s secret certs", zap.Error(err))
+	}
+	return certs
 }

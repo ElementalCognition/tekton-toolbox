@@ -25,8 +25,6 @@ import (
 	"github.com/spf13/pflag"
 	"go.uber.org/zap"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
-	"k8s.io/client-go/rest"
-	kubeclient "knative.dev/pkg/client/injection/kube/client"
 	"knative.dev/pkg/injection"
 	"knative.dev/pkg/logging"
 	"knative.dev/pkg/signals"
@@ -97,22 +95,6 @@ func getIntercepterName() string {
 	return "github-pipeline-config"
 }
 
-func prepareTLS(ctx context.Context, logger *zap.SugaredLogger, rc *rest.Config, n, ns string) tls.Certificate {
-	secret, err := clusterinterceptorupdater.GetCreateCertsSecret(ctx, kubeclient.Get(ctx).CoreV1(), logger, n, ns)
-	if err != nil {
-		logger.Fatalw("Failed to get or create k8s secret with certificates", zap.Error(err))
-	}
-	err = clusterinterceptorupdater.CreateUpdateIntercepterCaBundle(ctx, n, ns, secret.Data["ca-cert.pem"], rc, logger)
-	if err != nil {
-		logger.Fatalw("Failed to create or update clusterinterceptor", zap.Error(err))
-	}
-	certs, err := tls.X509KeyPair(secret.Data["server-cert.pem"], secret.Data["server-key.pem"])
-	if err != nil {
-		logger.Fatalw("Failed to create X509KeyPair from k8s secret certs", zap.Error(err))
-	}
-	return certs
-}
-
 func main() {
 	ctx := signals.NewContext()
 	kubeCfg := injection.ParseAndGetRESTConfigOrDie()
@@ -140,7 +122,7 @@ func main() {
 	startInformer()
 	intercepterName := getIntercepterName()
 	ns := clusterinterceptorupdater.GetNamespace()
-	certs := prepareTLS(ctx, logger, kubeCfg, intercepterName, ns)
+	certs := clusterinterceptorupdater.PrepareTLS(ctx, logger, kubeCfg, intercepterName, ns)
 	mux := newMux(svc, resolver, logger)
 	srv := &http.Server{
 		Addr:         cfg.Addr,
