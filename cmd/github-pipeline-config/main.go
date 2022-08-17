@@ -88,6 +88,14 @@ func newMux(
 	return mux
 }
 
+func getIntercepterName() string {
+	// Keep k8s service name and clusterintercepter name the same.
+	if ci, ok := os.LookupEnv("INTERCEPTER_NAME"); ok {
+		return ci
+	}
+	return "github-pipeline-config"
+}
+
 func main() {
 	ctx := signals.NewContext()
 	kubeCfg := injection.ParseAndGetRESTConfigOrDie()
@@ -113,11 +121,7 @@ func main() {
 	}
 	svc := githubpipelineconfig.NewService(githubClient)
 	startInformer()
-	// Keep k8s service name and clusterintercepter name the same.
-	intercepterName, ok := os.LookupEnv("INTERCEPTER_NAME")
-	if !ok {
-		intercepterName = "github-pipeline-config"
-	}
+	intercepterName := getIntercepterName()
 	ns := clusterinterceptorupdater.GetNamespace()
 	secret, err := clusterinterceptorupdater.GetCreateCertsSecret(ctx, kubeclient.Get(ctx).CoreV1(), logger, intercepterName, ns)
 	if err != nil {

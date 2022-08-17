@@ -68,6 +68,14 @@ func newMux(
 	return mux
 }
 
+func getIntercepterName() string {
+	// Keep k8s service name and clusterintercepter name the same.
+	if ci, ok := os.LookupEnv("INTERCEPTER_NAME"); ok {
+		return ci
+	}
+	return "pipeline-config-trigger"
+}
+
 func init() {
 	flag.String("config", "", "The path to the config file.")
 	flag.String("addr", "0.0.0.0:8443", "The address and port.")
@@ -100,11 +108,7 @@ func main() {
 		logger.Fatalw("Server failed to create CEL resolver", zap.Error(err))
 	}
 	startInformer()
-	// Keep k8s service name and clusterintercepter name the same.
-	intercepterName, ok := os.LookupEnv("INTERCEPTER_NAME")
-	if !ok {
-		intercepterName = "pipeline-config-trigger"
-	}
+	intercepterName := getIntercepterName()
 	ns := clusterinterceptorupdater.GetNamespace()
 	secret, err := clusterinterceptorupdater.GetCreateCertsSecret(ctx, kubeclient.Get(ctx).CoreV1(), logger, intercepterName, ns)
 	if err != nil {
