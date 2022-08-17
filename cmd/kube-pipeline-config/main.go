@@ -106,7 +106,6 @@ func main() {
 	if !ok {
 		intercepterName = "kube-pipeline-config"
 	}
-	///
 	ns := clusterinterceptorupdater.GetNamespace()
 	secret, err := clusterinterceptorupdater.GetCreatCertsSecret(ctx, kubeclient.Get(ctx).CoreV1(), logger, intercepterName, ns)
 	if err != nil {
