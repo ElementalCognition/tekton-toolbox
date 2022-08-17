@@ -84,7 +84,7 @@ func getIntercepterName() string {
 	return "github-status-sync"
 }
 
-func prepareTls(ctx context.Context, logger *zap.SugaredLogger, rc *rest.Config, n, ns string) tls.Certificate {
+func prepareTLS(ctx context.Context, logger *zap.SugaredLogger, rc *rest.Config, n, ns string) tls.Certificate {
 	secret, err := clusterinterceptorupdater.GetCreateCertsSecret(ctx, kubeclient.Get(ctx).CoreV1(), logger, n, ns)
 	if err != nil {
 		logger.Fatalw("Failed to get or create k8s secret with certificates", zap.Error(err))
@@ -133,7 +133,7 @@ func main() {
 	startInformer()
 	intercepterName := getIntercepterName()
 	ns := clusterinterceptorupdater.GetNamespace()
-	certs := prepareTls(ctx, logger, kubeCfg, intercepterName, ns)
+	certs := prepareTLS(ctx, logger, kubeCfg, intercepterName, ns)
 	mux := newMux(svc, logger)
 	srv := &http.Server{
 		Addr:         cfg.Addr,
