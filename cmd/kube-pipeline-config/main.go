@@ -100,8 +100,8 @@ func main() {
 	if err != nil {
 		logger.Fatalw("Server failed to start Kubernetes service", zap.Error(err))
 	}
-	startInformer() // check if needed
-	// Keep k8s service name and clusterintercepter name the same
+	startInformer()
+	// Keep k8s service name and clusterintercepter name the same.
 	intercepterName, ok := os.LookupEnv("INTERCEPTER_NAME")
 	if !ok {
 		intercepterName = "kube-pipeline-config"

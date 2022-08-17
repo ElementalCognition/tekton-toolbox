@@ -113,7 +113,7 @@ func main() {
 	}
 	svc := githubpipelineconfig.NewService(githubClient)
 	startInformer()
-	// Keep k8s service name and clusterintercepter name the same
+	// Keep k8s service name and clusterintercepter name the same.
 	intercepterName, ok := os.LookupEnv("INTERCEPTER_NAME")
 	if !ok {
 		intercepterName = "github-pipeline-config"

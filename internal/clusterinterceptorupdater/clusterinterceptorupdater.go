@@ -27,7 +27,7 @@ func GetNamespace() string {
 	return "tekton-pipelines"
 }
 
-// Returns key, cert, caCert and error
+// Returns key, cert, caCert and error.
 func GenerateCertificates(ctx context.Context, svc, ns string) ([]byte, []byte, []byte, error) {
 	expiration := time.Now().AddDate(10, 0, 0)
 	fmt.Printf("Generate certificates for svc %s in %s namespace.\n", svc, ns)
@@ -114,7 +114,7 @@ func CreateUpdateIntercepterCaBundle(ctx context.Context, ciName string, ns stri
 			log.Fatalf("Server failed to create clusterinterceptor with caBundle", zap.Error(err))
 		}
 	} else {
-		// Update cert if the clusterinterceptor exists and caBundle is different from caCert
+		// Update cert if the clusterinterceptor exists and caBundle is different from caCert.
 		if !bytes.Equal(ci.Spec.ClientConfig.CaBundle, caCert) {
 			ci.Spec.ClientConfig.CaBundle = caCert
 			if _, err = tc.TriggersV1alpha1().ClusterInterceptors().Update(ctx, ci, metav1.UpdateOptions{FieldManager: "custom-interceptor"}); err != nil {

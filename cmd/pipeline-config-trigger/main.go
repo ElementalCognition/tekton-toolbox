@@ -100,7 +100,7 @@ func main() {
 		logger.Fatalw("Server failed to create CEL resolver", zap.Error(err))
 	}
 	startInformer()
-	// Keep k8s service name and clusterintercepter name the same
+	// Keep k8s service name and clusterintercepter name the same.
 	intercepterName, ok := os.LookupEnv("INTERCEPTER_NAME")
 	if !ok {
 		intercepterName = "pipeline-config-trigger"
