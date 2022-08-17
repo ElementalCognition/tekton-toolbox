@@ -113,15 +113,13 @@ func CreateUpdateIntercepterCaBundle(ctx context.Context, ciName string, ns stri
 		if _, err = tc.TriggersV1alpha1().ClusterInterceptors().Create(ctx, ci, metav1.CreateOptions{}); err != nil {
 			log.Fatalf("Server failed to create clusterinterceptor with caBundle", zap.Error(err))
 		}
-	} else {
+	} else if !bytes.Equal(ci.Spec.ClientConfig.CaBundle, caCert) {
 		// Update cert if the clusterinterceptor exists and caBundle is different from caCert.
-		if !bytes.Equal(ci.Spec.ClientConfig.CaBundle, caCert) {
-			ci.Spec.ClientConfig.CaBundle = caCert
-			if _, err = tc.TriggersV1alpha1().ClusterInterceptors().Update(ctx, ci, metav1.UpdateOptions{FieldManager: "custom-interceptor"}); err != nil {
-				log.Fatalf("Server failed to update clusterinterceptor caBundle", zap.Error(err))
-			}
-			log.Infof("CaBundle was updated for %v", ciName)
+		ci.Spec.ClientConfig.CaBundle = caCert
+		if _, err = tc.TriggersV1alpha1().ClusterInterceptors().Update(ctx, ci, metav1.UpdateOptions{FieldManager: "custom-interceptor"}); err != nil {
+			log.Fatalf("Server failed to update clusterinterceptor caBundle", zap.Error(err))
 		}
+		log.Infof("CaBundle was updated for %v", ciName)
 	}
 	return nil
 }
