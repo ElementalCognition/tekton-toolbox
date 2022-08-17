@@ -106,7 +106,7 @@ func main() {
 		intercepterName = "pipeline-config-trigger"
 	}
 	ns := clusterinterceptorupdater.GetNamespace()
-	secret, err := clusterinterceptorupdater.GetCreatCertsSecret(ctx, kubeclient.Get(ctx).CoreV1(), logger, intercepterName, ns)
+	secret, err := clusterinterceptorupdater.GetCreateCertsSecret(ctx, kubeclient.Get(ctx).CoreV1(), logger, intercepterName, ns)
 	if err != nil {
 		logger.Fatalw("Failed to get or create k8s secret with certificates", zap.Error(err))
 	}

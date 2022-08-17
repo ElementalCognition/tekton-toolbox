@@ -38,7 +38,7 @@ func GenerateCertificates(ctx context.Context, svc, ns string) ([]byte, []byte, 
 	return key, cert, caCert, nil
 }
 
-func GetCreatCertsSecret(ctx context.Context, coreV1Interface corev1.CoreV1Interface,
+func GetCreateCertsSecret(ctx context.Context, coreV1Interface corev1.CoreV1Interface,
 	log *zap.SugaredLogger, sn, ns string) (*v1.Secret, error) {
 	s, err := coreV1Interface.Secrets(ns).Get(ctx, sn, metav1.GetOptions{})
 	if err != nil {
