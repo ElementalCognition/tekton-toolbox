@@ -25,6 +25,7 @@ import (
 	"go.uber.org/zap"
 	"gopkg.in/go-playground/pool.v3"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
+	"k8s.io/client-go/rest"
 	kubeclient "knative.dev/pkg/client/injection/kube/client"
 	"knative.dev/pkg/injection"
 	"knative.dev/pkg/logging"
@@ -76,6 +77,22 @@ func getIntercepterName() string {
 	return "pipeline-config-trigger"
 }
 
+func prepareTls(ctx context.Context, logger *zap.SugaredLogger, rc *rest.Config, n, ns string) tls.Certificate {
+	secret, err := clusterinterceptorupdater.GetCreateCertsSecret(ctx, kubeclient.Get(ctx).CoreV1(), logger, n, ns)
+	if err != nil {
+		logger.Fatalw("Failed to get or create k8s secret with certificates", zap.Error(err))
+	}
+	err = clusterinterceptorupdater.CreateUpdateIntercepterCaBundle(ctx, n, ns, secret.Data["ca-cert.pem"], rc, logger)
+	if err != nil {
+		logger.Fatalw("Failed to create or update clusterinterceptor", zap.Error(err))
+	}
+	certs, err := tls.X509KeyPair(secret.Data["server-cert.pem"], secret.Data["server-key.pem"])
+	if err != nil {
+		logger.Fatalw("Failed to create X509KeyPair from k8s secret certs", zap.Error(err))
+	}
+	return certs
+}
+
 func init() {
 	flag.String("config", "", "The path to the config file.")
 	flag.String("addr", "0.0.0.0:8443", "The address and port.")
@@ -110,18 +127,7 @@ func main() {
 	startInformer()
 	intercepterName := getIntercepterName()
 	ns := clusterinterceptorupdater.GetNamespace()
-	secret, err := clusterinterceptorupdater.GetCreateCertsSecret(ctx, kubeclient.Get(ctx).CoreV1(), logger, intercepterName, ns)
-	if err != nil {
-		logger.Fatalw("Failed to get or create k8s secret with certificates", zap.Error(err))
-	}
-	err = clusterinterceptorupdater.CreateUpdateIntercepterCaBundle(ctx, intercepterName, ns, secret.Data["ca-cert.pem"], kubeCfg, logger)
-	if err != nil {
-		logger.Fatalw("Failed to create or update clusterinterceptor", zap.Error(err))
-	}
-	certs, err := tls.X509KeyPair(secret.Data["server-cert.pem"], secret.Data["server-key.pem"])
-	if err != nil {
-		logger.Fatalw("Failed to create X509KeyPair from k8s secret certs", zap.Error(err))
-	}
+	certs := prepareTls(ctx, logger, kubeCfg, intercepterName, ns)
 	p := pool.NewLimited(cfg.Workers)
 	svc := pipelineconfigtrigger.NewService(tektonClient, p)
 	mux := newMux(svc, resolver, logger)
