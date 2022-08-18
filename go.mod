@@ -5,7 +5,7 @@ go 1.18
 require (
 	cloud.google.com/go/storage v1.21.0
 	github.com/bradleyfalzon/ghinstallation v1.1.1
-	github.com/go-chi/chi v1.5.4
+	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/google/cel-go v0.11.3
 	github.com/google/go-github/v43 v43.0.0
 	github.com/hashicorp/go-multierror v1.1.1
