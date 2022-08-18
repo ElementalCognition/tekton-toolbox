@@ -2,6 +2,7 @@ package pipelineresolver
 
 import (
 	"context"
+
 	"github.com/google/cel-go/cel"
 	"github.com/google/cel-go/checker/decls"
 	celext "github.com/google/cel-go/ext"
@@ -12,7 +13,7 @@ import (
 func NewCelEnv() (*cel.Env, error) {
 	mapStrDyn := decls.NewMapType(decls.String, decls.Dyn)
 	return cel.NewEnv(
-		triggerscel.Triggers(metav1.NamespaceAll, nil),
+		triggerscel.Triggers(context.Background(), metav1.NamespaceAll, nil),
 		celext.Strings(),
 		celext.Encoders(),
 		cel.Declarations(

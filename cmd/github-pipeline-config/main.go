@@ -2,12 +2,15 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"flag"
 	"net"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/ElementalCognition/tekton-toolbox/internal/chimiddleware"
+	"github.com/ElementalCognition/tekton-toolbox/internal/clusterinterceptorupdater"
 	"github.com/ElementalCognition/tekton-toolbox/internal/knativeinjection"
 	"github.com/ElementalCognition/tekton-toolbox/internal/serversignals"
 	"github.com/ElementalCognition/tekton-toolbox/internal/viperconfig"
@@ -24,6 +27,7 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"knative.dev/pkg/injection"
 	"knative.dev/pkg/logging"
+	"knative.dev/pkg/signals"
 )
 
 type config struct {
@@ -43,7 +47,7 @@ const (
 
 func init() {
 	flag.String("config", "", "The path to the config file.")
-	flag.String("addr", "0.0.0.0:80", "The address and port.")
+	flag.String("addr", "0.0.0.0:8443", "The address and port.")
 	flag.Int64("github-app-id", 0, "GitHub App ID.")
 	flag.Int64("github-installation-id", 0, "GitHub Installation ID.")
 	flag.String("github-app-key", "", "GitHub App key.")
@@ -83,9 +87,18 @@ func newMux(
 	return mux
 }
 
+func getIntercepterName() string {
+	// Keep k8s service name and clusterintercepter name the same.
+	if ci, ok := os.LookupEnv("INTERCEPTER_NAME"); ok {
+		return ci
+	}
+	return "github-pipeline-config"
+}
+
 func main() {
+	ctx := signals.NewContext()
 	kubeCfg := injection.ParseAndGetRESTConfigOrDie()
-	ctx := knativeinjection.EnableInjectionOrDie(kubeCfg)
+	ctx, startInformer := injection.EnableInjectionOrDie(ctx, kubeCfg)
 	logger := knativeinjection.SetupLoggerOrDie(ctx, component)
 	ctx = logging.WithLogger(ctx, logger)
 	viperCfg, err := viperconfig.NewConfig(component, pflag.CommandLine)
@@ -106,9 +119,14 @@ func main() {
 		logger.Fatalw("Server failed to create CEL resolver", zap.Error(err))
 	}
 	svc := githubpipelineconfig.NewService(githubClient)
+	startInformer()
+	intercepterName := getIntercepterName()
+	ns := clusterinterceptorupdater.GetNamespace()
+	certs := clusterinterceptorupdater.PrepareTLS(ctx, logger, kubeCfg, intercepterName, ns)
 	mux := newMux(svc, resolver, logger)
 	srv := &http.Server{
 		Addr:         cfg.Addr,
+		TLSConfig:    &tls.Config{Certificates: []tls.Certificate{certs}},
 		ReadTimeout:  readTimeout,
 		WriteTimeout: writeTimeout,
 		IdleTimeout:  idleTimeout,
