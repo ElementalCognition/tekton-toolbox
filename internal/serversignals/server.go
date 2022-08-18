@@ -54,10 +54,13 @@ func (s *Server) WaitSignalsThenShutdown(ctx context.Context) error {
 	return g.Wait()
 }
 
-func (s *Server) ListenAndServeTLS() error {
+func (s *Server) ListenAndServe() error {
 	s.Logger.Infow("Server started")
 	s.Logger.Infow("Server listen and serve", zap.String("addr", s.Addr))
-	return s.Server.ListenAndServeTLS("", "")
+	if s.TLSConfig.Certificates != nil {
+		return s.Server.ListenAndServeTLS("", "")
+	}
+	return s.Server.ListenAndServe()
 }
 
 func (s *Server) StartAndWaitSignalsThenShutdown(ctx context.Context) error {
@@ -66,7 +69,7 @@ func (s *Server) StartAndWaitSignalsThenShutdown(ctx context.Context) error {
 		return s.WaitSignalsThenShutdown(ctx)
 	})
 	g.Go(func() error {
-		return s.ListenAndServeTLS()
+		return s.ListenAndServe()
 	})
 	return g.Wait()
 }
