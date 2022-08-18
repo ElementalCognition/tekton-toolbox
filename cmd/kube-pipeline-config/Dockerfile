@@ -15,6 +15,6 @@ RUN --mount=type=cache,id=gomod,target=/go/pkg/mod \
     --mount=type=cache,id=gobuild,target=/root/.cache/go-build \
     go build -o /go/bin/kube-pipeline-config ./cmd/kube-pipeline-config
 
-FROM alpine:3.14
+FROM alpine:3.16.2
 COPY --from=build /go/bin/kube-pipeline-config /usr/local/bin/kube-pipeline-config
 CMD ["kube-pipeline-config"]
