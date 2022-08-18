@@ -14,18 +14,18 @@ import (
 	testclient "k8s.io/client-go/kubernetes/fake"
 )
 
-const (
+var (
 	svcName = "f22-rapror"
 	tknNS   = "tekton-test-namespace"
 )
 
-func tlsVerify(cert, cacert []byte) error {
+func tlsVerify(t *testing.T, cert, cacert []byte) error {
 	certPool := x509.NewCertPool()
 	pemCert, _ := pem.Decode(cert)
 	certPool.AppendCertsFromPEM(cacert)
 	leafCert, err := x509.ParseCertificate(pemCert.Bytes)
 	if err != nil {
-		return err
+		t.Error(err)
 	}
 	vo := x509.VerifyOptions{
 		DNSName:     fmt.Sprintf("%s.%s.svc", svcName, tknNS),
@@ -34,22 +34,31 @@ func tlsVerify(cert, cacert []byte) error {
 	}
 	_, err = leafCert.Verify(vo)
 	if err != nil {
-		return err
+		t.Error(err)
 	}
-	return nil
+	return err
 }
 
 func TestGetNamespace(t *testing.T) {
 	err := os.Setenv("SVC_NAMESPACE", tknNS)
 	assert.Nil(t, err)
-	ns := GetNamespace()
-	assert.Equal(t, tknNS, ns)
+	assert.Equal(t, tknNS, GetNamespace())
+	os.Unsetenv("SVC_NAMESPACE")
+	assert.Equal(t, "tekton-pipelines", GetNamespace())
 }
 
 func TestGenerateCertificates(t *testing.T) {
-	_, crt, cacert, err := generateCertificates(context.Background(), svcName, tknNS)
+	key, crt, cacert, err := generateCertificates(context.Background(), svcName, tknNS)
 	assert.Nil(t, err)
-	assert.Nil(t, tlsVerify(crt, cacert))
+	assert.IsType(t, []byte{}, key)
+	assert.Nil(t, tlsVerify(t, crt, cacert))
+
+	_, _, _, err = generateCertificates(context.Background(), "", tknNS)
+	assert.Error(t, err)
+	_, _, _, err = generateCertificates(context.Background(), "", "")
+	assert.Error(t, err)
+	_, _, _, err = generateCertificates(context.Background(), "/*-/*12", "9ф?:^")
+	assert.Error(t, err)
 }
 
 func TestGetCreateCertsSecret(t *testing.T) {
@@ -59,5 +68,5 @@ func TestGetCreateCertsSecret(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, svcName, secret.Name)
 	assert.Equal(t, tknNS, secret.Namespace)
-	assert.Nil(t, tlsVerify(secret.Data["server-cert.pem"], secret.Data["ca-cert.pem"]))
+	assert.Nil(t, tlsVerify(t, secret.Data["server-cert.pem"], secret.Data["ca-cert.pem"]))
 }

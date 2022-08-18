@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -31,6 +32,9 @@ func GetNamespace() string {
 
 // Returns key, cert, caCert and error.
 func generateCertificates(ctx context.Context, svc, ns string) ([]byte, []byte, []byte, error) {
+	if svc == "" || ns == "" {
+		return nil, nil, nil, errors.New("serviceName and or namespace is empty")
+	}
 	expiration := time.Now().AddDate(10, 0, 0)
 	fmt.Printf("Generate certificates for svc %s in %s namespace.\n", svc, ns)
 	key, cert, caCert, err := resources.CreateCerts(ctx, svc, ns, expiration)
