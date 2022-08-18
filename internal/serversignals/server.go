@@ -57,7 +57,7 @@ func (s *Server) WaitSignalsThenShutdown(ctx context.Context) error {
 func (s *Server) ListenAndServe() error {
 	s.Logger.Infow("Server started")
 	s.Logger.Infow("Server listen and serve", zap.String("addr", s.Addr))
-	if s.TLSConfig.Certificates != nil {
+	if s.TLSConfig != nil {
 		return s.Server.ListenAndServeTLS("", "")
 	}
 	return s.Server.ListenAndServe()
