@@ -13,6 +13,10 @@ func checkRunOutput(tr *v1beta1.TaskRun, url string) *github.CheckRunOutput {
 	var logs []string
 	for _, v := range tr.Status.Steps {
 		var s, e string
+		if v.Terminated == nil {
+			fmt.Printf("TaskRun terminated field is nil, skip annotation. TR: %s \n", tr.Name)
+			continue
+		}
 		switch v.Terminated.Reason {
 		case "Completed":
 			s = "notice"
