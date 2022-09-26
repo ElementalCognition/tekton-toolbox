@@ -1,9 +1,14 @@
 package main
 
 import (
-	"cloud.google.com/go/storage"
 	"context"
 	"flag"
+	"net"
+	"net/http"
+	"runtime"
+	"time"
+
+	"cloud.google.com/go/storage"
 	"github.com/ElementalCognition/tekton-toolbox/internal/chimiddleware"
 	"github.com/ElementalCognition/tekton-toolbox/internal/knativeinjection"
 	"github.com/ElementalCognition/tekton-toolbox/internal/serversignals"
@@ -19,10 +24,6 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"knative.dev/pkg/injection"
 	"knative.dev/pkg/logging"
-	"net"
-	"net/http"
-	"runtime"
-	"time"
 )
 
 type config struct {
