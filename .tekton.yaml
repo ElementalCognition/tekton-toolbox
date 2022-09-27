@@ -3,6 +3,10 @@ defaults:
   params:
     - name: sonar-enabled
       value: "true"
+    - name: whitesource-product-name
+      value: platform
+    - name: whitesource-project-name
+      value: tekton-toolbox
 triggers:
   - name: pr
     pipelines:
@@ -115,6 +119,19 @@ triggers:
             value: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/pipeline-config-trigger
           - name: cache-tag
             value: body.pull_request.number
+      - name: whitesource
+        pipelineRef:
+          name: whitesource
+          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/whitesource:0.1
+        params:
+          - name: buildkit-image
+            value: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-cache/whitesource/platform/tekton-toolbox
+          - name: buildkit-tag
+            value: body.pull_request.head.sha
+          - name: buildkit-cache-image
+            value: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-cache/whitesource/platform/tekton-toolbox
+          - name: buildkit-cache-tag
+            value: latest
   - name: main
     pipelines:
       - name: go-sanity
@@ -279,5 +296,18 @@ triggers:
             value: body.head_commit.id
           - name: buildkit-cache-image
             value: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/pipeline-config-trigger
+          - name: buildkit-cache-tag
+            value: latest
+      - name: whitesource
+        pipelineRef:
+          name: whitesource
+          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/whitesource:0.1
+        params:
+          - name: buildkit-image
+            value: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-cache/whitesource/platform/tekton-toolbox
+          - name: buildkit-tag
+            value: body.head_commit.id
+          - name: buildkit-cache-image
+            value: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-cache/whitesource/platform/tekton-toolbox
           - name: buildkit-cache-tag
             value: latest
