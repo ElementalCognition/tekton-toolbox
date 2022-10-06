@@ -1,5 +1,9 @@
+# default owners of all repo files unless overridden below -- in addition, the
+# EC infra team will direct general questions about this repo to these users
 * rluckie@ec.ai
 * @ElementalCognition/infrastructure
 
-/roles/security rluckie@ec.ai
-/roles/costing rluckie@ec.ai
+# roles for recordkeeping and automated processes that run OUTSIDE of Github
+# -- this is an EC convention -- the roles/* subdir is NOT expected to exist
+/roles/security   rluckie@ec.ai
+/roles/costing    rluckie@ec.ai
