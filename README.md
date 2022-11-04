@@ -32,6 +32,7 @@ k8s deployment must have the following ENV vars:
     fieldRef:
       fieldPath: metadata.namespace
 ```
+
 k8s deployment must use https to check readiness and liveness:
 ```yaml
 readinessProbe:
