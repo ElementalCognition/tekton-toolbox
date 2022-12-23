@@ -5,7 +5,7 @@ import (
 
 	"github.com/ElementalCognition/tekton-toolbox/pkg/pipelineconfig"
 	"github.com/ElementalCognition/tekton-toolbox/pkg/vcspipelineconfig"
-	"github.com/google/go-github/v43/github"
+	"github.com/google/go-github/v48/github"
 	"go.uber.org/zap"
 	"knative.dev/pkg/logging"
 )

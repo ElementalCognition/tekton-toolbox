@@ -3,7 +3,7 @@ package githubstatussync
 import (
 	t "time"
 
-	"github.com/google/go-github/v43/github"
+	"github.com/google/go-github/v48/github"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

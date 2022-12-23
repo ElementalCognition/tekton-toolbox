@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/ElementalCognition/tekton-toolbox/pkg/cloudeventsync"
-	"github.com/google/go-github/v43/github"
+	"github.com/google/go-github/v48/github"
 	"github.com/tektoncd/pipeline/pkg/reconciler/events/cloudevent"
 	"go.uber.org/zap"
 	"knative.dev/pkg/logging"

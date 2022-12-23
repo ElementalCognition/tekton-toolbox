@@ -20,7 +20,7 @@ import (
 	"github.com/ElementalCognition/tekton-toolbox/pkg/triggers"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"github.com/google/go-github/v43/github"
+	"github.com/google/go-github/v48/github"
 	"github.com/spf13/pflag"
 	"go.uber.org/zap"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
