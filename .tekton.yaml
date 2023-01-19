@@ -19,6 +19,9 @@ triggers:
         pipelineRef:
           name: go-sanity
           bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/go:0.2
+        parpams:
+          - name: go-version
+            value: 1.19
       - name: buildkit-gcs-log-proxy
         metadata:
           annotations:
@@ -138,6 +141,9 @@ triggers:
         pipelineRef:
           name: go-sanity
           bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/go:0.2
+        parpams:
+          - name: go-version
+            value: 1.19
       - name: gitops-gcs-log-proxy
         metadata:
           annotations:
