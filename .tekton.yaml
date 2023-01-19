@@ -22,7 +22,7 @@ triggers:
       - name: go-sanity
         pipelineRef:
           name: go-sanity
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/go:0.2
+          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog-dev/pipeline/go:0.3-dev.392
       - name: buildkit-gcs-log-proxy
         metadata:
           annotations:
@@ -141,7 +141,7 @@ triggers:
       - name: go-sanity
         pipelineRef:
           name: go-sanity
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/go:0.2
+          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog-dev/pipeline/go:0.3-dev.392
       - name: gitops-gcs-log-proxy
         metadata:
           annotations:
