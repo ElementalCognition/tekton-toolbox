@@ -2,18 +2,19 @@ package gcslogproxy
 
 import (
 	"bytes"
-	"cloud.google.com/go/storage"
 	"context"
 	"fmt"
+	"io"
+	"sort"
+	"time"
+
+	"cloud.google.com/go/storage"
 	"github.com/ElementalCognition/tekton-toolbox/pkg/logproxy"
 	"github.com/hashicorp/go-multierror"
 	"go.uber.org/zap"
 	"google.golang.org/api/iterator"
 	"gopkg.in/go-playground/pool.v3"
-	"io/ioutil"
 	"knative.dev/pkg/logging"
-	"sort"
-	"time"
 )
 
 const (
@@ -79,7 +80,7 @@ func (f *fetcher) fetch(ctx context.Context, filename string) ([]byte, error) {
 			logger.Errorw("Service failed to close GCS reader", zap.Error(err))
 		}
 	}(f, rc)
-	data, err := ioutil.ReadAll(rc)
+	data, err := io.ReadAll(rc)
 	if err != nil {
 		return nil, err
 	}
