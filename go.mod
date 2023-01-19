@@ -20,8 +20,8 @@ require (
 	google.golang.org/api v0.108.0
 	google.golang.org/grpc v1.52.0
 	gopkg.in/go-playground/pool.v3 v3.1.1
-	k8s.io/api v0.25.4
-	k8s.io/apimachinery v0.25.4
+	k8s.io/api v0.26.1
+	k8s.io/apimachinery v0.26.1
 	k8s.io/client-go v0.25.4
 	knative.dev/pkg v0.0.0-20221011175852-714b7630a836
 	sigs.k8s.io/yaml v1.3.0
@@ -130,7 +130,7 @@ require (
 	k8s.io/apiextensions-apiserver v0.25.3 // indirect
 	k8s.io/klog/v2 v2.80.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20221012153701-172d655c2280 // indirect
-	k8s.io/utils v0.0.0-20221012122500-cfd413dd9e85 // indirect
+	k8s.io/utils v0.0.0-20221107191617-1a15be271d1d // indirect
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect
 )
