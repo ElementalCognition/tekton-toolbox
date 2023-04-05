@@ -1,8 +1,9 @@
 package pipelinemerge
 
 import (
-	"github.com/imdario/mergo"
 	"reflect"
+
+	"github.com/imdario/mergo"
 )
 
 type sliceMergeTransformer struct {
@@ -72,7 +73,7 @@ func (t *sliceMergeTransformer) Transformer(typ reflect.Type) func(dst reflect.V
 			return nil
 		}
 		if !dst.CanAddr() {
-			return mergo.ErrNonPointerAgument
+			return mergo.ErrNonPointerArgument
 		}
 		dstRefs := t.refsFor(dst)
 		for i := 0; i < src.Len(); i++ {

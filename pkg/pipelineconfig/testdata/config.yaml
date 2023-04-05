@@ -42,6 +42,16 @@ triggers:
       - name: pr-pipeline-3
         pipelineRef:
           name: pipeline-3
+      - name: pr-pipeline-git-resovers
+        pipelineRef:
+          resolver: git
+          params:
+            - name: url
+              value: https://github.com/ElementalCognition/tekton-catalog-test.git
+            - name: revision
+              value: main
+            - name: pathInRepo
+              value: /pipeline/protos/0.3/protos-go.yaml
   - name: main
     filter: >-
       "ref" in body && body.ref == "refs/heads/main"
