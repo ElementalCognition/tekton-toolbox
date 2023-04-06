@@ -17,19 +17,37 @@ triggers:
       - name: yaml-sanity
         metadata:
         pipelineRef:
-          name: yaml-sanity
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/yaml:0.1
+          resolver: git
+          params:
+            - name: repo
+              value: tekton-catalog-new
+            - name: revision
+              value: main
+            - name: pathInRepo
+              value: pipeline/yaml/0.1/yaml-sanity.yaml
       - name: go-sanity
         pipelineRef:
-          name: go-sanity
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/go:0.3
+          resolver: git
+          params:
+            - name: repo
+              value: tekton-catalog-new
+            - name: revision
+              value: main
+            - name: pathInRepo
+              value: pipeline/go/0.3/go-sanity.yaml
       - name: buildkit-gcs-log-proxy
         metadata:
           annotations:
             tekton.ec.ai/memberOf: gcs-log-proxy
         pipelineRef:
-          name: buildkit
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/buildkit:0.1
+          resolver: git
+          params:
+            - name: repo
+              value: tekton-catalog-new
+            - name: revision
+              value: main
+            - name: pathInRepo
+              value: pipeline/buildkit/0.1/buildkit.yaml
         params:
           - name: name
             value: gcs-log-proxy
@@ -48,8 +66,14 @@ triggers:
           annotations:
             tekton.ec.ai/memberOf: github-pipeline-config
         pipelineRef:
-          name: buildkit
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/buildkit:0.1
+          resolver: git
+          params:
+            - name: repo
+              value: tekton-catalog-new
+            - name: revision
+              value: main
+            - name: pathInRepo
+              value: pipeline/buildkit/0.1/buildkit.yaml
         params:
           - name: name
             value: github-pipeline-config
@@ -68,8 +92,14 @@ triggers:
           annotations:
             tekton.ec.ai/memberOf: github-status-sync
         pipelineRef:
-          name: buildkit
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/buildkit:0.1
+          resolver: git
+          params:
+            - name: repo
+              value: tekton-catalog-new
+            - name: revision
+              value: main
+            - name: pathInRepo
+              value: pipeline/buildkit/0.1/buildkit.yaml
         params:
           - name: name
             value: github-status-sync
@@ -88,8 +118,14 @@ triggers:
           annotations:
             tekton.ec.ai/memberOf: kube-pipeline-config
         pipelineRef:
-          name: buildkit
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/buildkit:0.1
+          resolver: git
+          params:
+            - name: repo
+              value: tekton-catalog-new
+            - name: revision
+              value: main
+            - name: pathInRepo
+              value: pipeline/buildkit/0.1/buildkit.yaml
         params:
           - name: name
             value: kube-pipeline-config
@@ -108,8 +144,14 @@ triggers:
           annotations:
             tekton.ec.ai/memberOf: pipeline-config-trigger
         pipelineRef:
-          name: buildkit
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/buildkit:0.1
+          resolver: git
+          params:
+            - name: repo
+              value: tekton-catalog-new
+            - name: revision
+              value: main
+            - name: pathInRepo
+              value: pipeline/buildkit/0.1/buildkit.yaml
         params:
           - name: name
             value: pipeline-config-trigger
@@ -125,8 +167,14 @@ triggers:
             value: body.pull_request.number
       - name: whitesource
         pipelineRef:
-          name: whitesource
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/whitesource:0.1
+          resolver: git
+          params:
+            - name: repo
+              value: tekton-catalog-new
+            - name: revision
+              value: main
+            - name: pathInRepo
+              value: pipeline/whitesource/0.1/whitesource.yaml
         params:
           - name: buildkit-image
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/whitesource/platform/tekton-toolbox
@@ -140,15 +188,27 @@ triggers:
     pipelines:
       - name: go-sanity
         pipelineRef:
-          name: go-sanity
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/go:0.3
+          resolver: git
+          params:
+            - name: repo
+              value: tekton-catalog-new
+            - name: revision
+              value: main
+            - name: pathInRepo
+              value: pipeline/go/0.3/go-sanity.yaml
       - name: gitops-gcs-log-proxy
         metadata:
           annotations:
             tekton.ec.ai/memberOf: gcs-log-proxy
         pipelineRef:
-          name: gitops-release
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/gitops:0.2
+          resolver: git
+          params:
+            - name: repo
+              value: tekton-catalog-new
+            - name: revision
+              value: main
+            - name: pathInRepo
+              value: pipeline/gitops/0.2/gitops-release.yaml
         params:
           - name: argocd-name
             value: tekton-toolbox
@@ -179,8 +239,14 @@ triggers:
           annotations:
             tekton.ec.ai/memberOf: github-pipeline-config
         pipelineRef:
-          name: gitops-release
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/gitops:0.2
+          resolver: git
+          params:
+            - name: repo
+              value: tekton-catalog-new
+            - name: revision
+              value: main
+            - name: pathInRepo
+              value: pipeline/gitops/0.2/gitops-release.yaml
         params:
           - name: argocd-name
             value: tekton-toolbox
@@ -211,8 +277,14 @@ triggers:
           annotations:
             tekton.ec.ai/memberOf: github-status-sync
         pipelineRef:
-          name: gitops-release
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/gitops:0.2
+          resolver: git
+          params:
+            - name: repo
+              value: tekton-catalog-new
+            - name: revision
+              value: main
+            - name: pathInRepo
+              value: pipeline/gitops/0.2/gitops-release.yaml
         params:
           - name: argocd-name
             value: tekton-toolbox
@@ -243,8 +315,14 @@ triggers:
           annotations:
             tekton.ec.ai/memberOf: kube-pipeline-config
         pipelineRef:
-          name: gitops-release
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/gitops:0.2
+          resolver: git
+          params:
+            - name: repo
+              value: tekton-catalog-new
+            - name: revision
+              value: main
+            - name: pathInRepo
+              value: pipeline/gitops/0.2/gitops-release.yaml
         params:
           - name: argocd-name
             value: tekton-toolbox
@@ -275,8 +353,14 @@ triggers:
           annotations:
             tekton.ec.ai/memberOf: pipeline-config-trigger
         pipelineRef:
-          name: gitops-release
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/gitops:0.2
+          resolver: git
+          params:
+            - name: repo
+              value: tekton-catalog-new
+            - name: revision
+              value: main
+            - name: pathInRepo
+              value: pipeline/gitops/0.2/gitops-release.yaml
         params:
           - name: argocd-name
             value: tekton-toolbox
@@ -304,8 +388,14 @@ triggers:
             value: latest
       - name: whitesource
         pipelineRef:
-          name: whitesource
-          bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/whitesource:0.1
+          resolver: git
+          params:
+            - name: repo
+              value: tekton-catalog-new
+            - name: revision
+              value: main
+            - name: pathInRepo
+              value: pipeline/whitesource/0.1/whitesource.yaml
         params:
           - name: buildkit-image
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/whitesource/platform/tekton-toolbox
