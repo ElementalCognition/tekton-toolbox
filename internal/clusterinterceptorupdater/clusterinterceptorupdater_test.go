@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	svcName = "f22-rapror"
+	svcName = "f22-raptor"
 	tknNS   = "tekton-test-namespace"
 )
 

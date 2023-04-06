@@ -1,9 +1,10 @@
 package pipelineconfig
 
 import (
-	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestConfig_UnmarshalYAML(t *testing.T) {
