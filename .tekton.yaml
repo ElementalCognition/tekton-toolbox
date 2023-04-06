@@ -36,11 +36,11 @@ triggers:
           - name: dockerfile
             value: cmd/gcs-log-proxy/Dockerfile
           - name: image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/platform/dev/tekton-toolbox/gcs-log-proxy
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/platform/dev/tekton-toolbox/gcs-log-proxy
           - name: tag
             value: body.pull_request.head.sha
           - name: cache-image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/gcs-log-proxy
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/gcs-log-proxy
           - name: cache-tag
             value: body.pull_request.number
       - name: buildkit-github-pipeline-config
@@ -56,11 +56,11 @@ triggers:
           - name: dockerfile
             value: cmd/github-pipeline-config/Dockerfile
           - name: image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/platform/dev/tekton-toolbox/github-pipeline-config
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/platform/dev/tekton-toolbox/github-pipeline-config
           - name: tag
             value: body.pull_request.head.sha
           - name: cache-image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/github-pipeline-config
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/github-pipeline-config
           - name: cache-tag
             value: body.pull_request.number
       - name: buildkit-github-status-sync
@@ -76,11 +76,11 @@ triggers:
           - name: dockerfile
             value: cmd/github-status-sync/Dockerfile
           - name: image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/platform/dev/tekton-toolbox/github-status-sync
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/platform/dev/tekton-toolbox/github-status-sync
           - name: tag
             value: body.pull_request.head.sha
           - name: cache-image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/github-status-sync
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/github-status-sync
           - name: cache-tag
             value: body.pull_request.number
       - name: buildkit-kube-pipeline-config
@@ -96,11 +96,11 @@ triggers:
           - name: dockerfile
             value: cmd/kube-pipeline-config/Dockerfile
           - name: image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/platform/dev/tekton-toolbox/kube-pipeline-config
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/platform/dev/tekton-toolbox/kube-pipeline-config
           - name: tag
             value: body.pull_request.head.sha
           - name: cache-image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/kube-pipeline-config
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/kube-pipeline-config
           - name: cache-tag
             value: body.pull_request.number
       - name: buildkit-pipeline-config-trigger
@@ -116,11 +116,11 @@ triggers:
           - name: dockerfile
             value: cmd/pipeline-config-trigger/Dockerfile
           - name: image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/platform/dev/tekton-toolbox/pipeline-config-trigger
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/platform/dev/tekton-toolbox/pipeline-config-trigger
           - name: tag
             value: body.pull_request.head.sha
           - name: cache-image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/pipeline-config-trigger
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/pipeline-config-trigger
           - name: cache-tag
             value: body.pull_request.number
       - name: whitesource
@@ -129,11 +129,11 @@ triggers:
           bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/whitesource:0.1
         params:
           - name: buildkit-image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-cache/whitesource/platform/tekton-toolbox
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/whitesource/platform/tekton-toolbox
           - name: buildkit-tag
             value: body.pull_request.head.sha
           - name: buildkit-cache-image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-cache/whitesource/platform/tekton-toolbox
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/whitesource/platform/tekton-toolbox
           - name: buildkit-cache-tag
             value: latest
   - name: main
@@ -167,11 +167,11 @@ triggers:
           - name: buildkit-dockerfile
             value: cmd/gcs-log-proxy/Dockerfile
           - name: buildkit-image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/gcs-log-proxy
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/gcs-log-proxy
           - name: buildkit-tag
             value: body.head_commit.id
           - name: buildkit-cache-image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/gcs-log-proxy
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/gcs-log-proxy
           - name: buildkit-cache-tag
             value: latest
       - name: gitops-github-pipeline-config
@@ -199,11 +199,11 @@ triggers:
           - name: buildkit-dockerfile
             value: cmd/github-pipeline-config/Dockerfile
           - name: buildkit-image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/github-pipeline-config
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/github-pipeline-config
           - name: buildkit-tag
             value: body.head_commit.id
           - name: buildkit-cache-image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/github-pipeline-config
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/github-pipeline-config
           - name: buildkit-cache-tag
             value: latest
       - name: gitops-github-status-sync
@@ -231,11 +231,11 @@ triggers:
           - name: buildkit-dockerfile
             value: cmd/github-status-sync/Dockerfile
           - name: buildkit-image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/github-status-sync
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/github-status-sync
           - name: buildkit-tag
             value: body.head_commit.id
           - name: buildkit-cache-image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/github-status-sync
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/github-status-sync
           - name: buildkit-cache-tag
             value: latest
       - name: gitops-kube-pipeline-config
@@ -263,11 +263,11 @@ triggers:
           - name: buildkit-dockerfile
             value: cmd/kube-pipeline-config/Dockerfile
           - name: buildkit-image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/kube-pipeline-config
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/kube-pipeline-config
           - name: buildkit-tag
             value: body.head_commit.id
           - name: buildkit-cache-image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/kube-pipeline-config
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/kube-pipeline-config
           - name: buildkit-cache-tag
             value: latest
       - name: gitops-pipeline-config-trigger
@@ -295,11 +295,11 @@ triggers:
           - name: buildkit-dockerfile
             value: cmd/pipeline-config-trigger/Dockerfile
           - name: buildkit-image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/pipeline-config-trigger
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/pipeline-config-trigger
           - name: buildkit-tag
             value: body.head_commit.id
           - name: buildkit-cache-image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/pipeline-config-trigger
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/pipeline-config-trigger
           - name: buildkit-cache-tag
             value: latest
       - name: whitesource
@@ -308,10 +308,10 @@ triggers:
           bundle: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-catalog/pipeline/whitesource:0.1
         params:
           - name: buildkit-image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-cache/whitesource/platform/tekton-toolbox
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/whitesource/platform/tekton-toolbox
           - name: buildkit-tag
             value: body.head_commit.id
           - name: buildkit-cache-image
-            value: us-east4-docker.pkg.dev/elementalcognition-app-source/tekton-cache/whitesource/platform/tekton-toolbox
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/whitesource/platform/tekton-toolbox
           - name: buildkit-cache-tag
             value: latest
