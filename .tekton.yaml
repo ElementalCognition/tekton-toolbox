@@ -59,8 +59,6 @@ triggers:
             value: body.pull_request.head.sha
           - name: cache-image
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/gcs-log-proxy
-          - name: cache-tag
-            value: body.pull_request.number
       - name: buildkit-github-pipeline-config
         metadata:
           annotations:
@@ -85,8 +83,6 @@ triggers:
             value: body.pull_request.head.sha
           - name: cache-image
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/github-pipeline-config
-          - name: cache-tag
-            value: body.pull_request.number
       - name: buildkit-github-status-sync
         metadata:
           annotations:
@@ -111,8 +107,6 @@ triggers:
             value: body.pull_request.head.sha
           - name: cache-image
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/github-status-sync
-          - name: cache-tag
-            value: body.pull_request.number
       - name: buildkit-kube-pipeline-config
         metadata:
           annotations:
@@ -137,8 +131,6 @@ triggers:
             value: body.pull_request.head.sha
           - name: cache-image
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/kube-pipeline-config
-          - name: cache-tag
-            value: body.pull_request.number
       - name: buildkit-pipeline-config-trigger
         metadata:
           annotations:
@@ -163,8 +155,6 @@ triggers:
             value: body.pull_request.head.sha
           - name: cache-image
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/pipeline-config-trigger
-          - name: cache-tag
-            value: body.pull_request.number
       - name: whitesource
         pipelineRef:
           resolver: git
