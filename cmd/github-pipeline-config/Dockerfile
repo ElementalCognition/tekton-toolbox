@@ -15,6 +15,6 @@ RUN --mount=type=cache,id=gomod,target=/go/pkg/mod \
     --mount=type=cache,id=gobuild,target=/root/.cache/go-build \
     go build -o /go/bin/github-pipeline-config ./cmd/github-pipeline-config
 
-FROM alpine:3.14
+FROM alpine:3.17
 COPY --from=build /go/bin/github-pipeline-config /usr/local/bin/github-pipeline-config
 CMD ["github-pipeline-config"]
