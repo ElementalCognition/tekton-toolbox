@@ -2,10 +2,11 @@ package pipelinerun
 
 import (
 	"context"
+	"testing"
+
 	"github.com/ElementalCognition/tekton-toolbox/pkg/pipelineresolver"
 	"github.com/stretchr/testify/assert"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
-	"testing"
 )
 
 func TestParam_Reconcile_StringRef(t *testing.T) {
@@ -14,7 +15,7 @@ func TestParam_Reconcile_StringRef(t *testing.T) {
 	ctx := pipelineresolver.WithResolver(context.TODO(), r)
 	p := &Param{
 		Param: v1beta1.Param{
-			Value: v1beta1.ArrayOrString{
+			Value: v1beta1.ParamValue{
 				Type:      v1beta1.ParamTypeString,
 				StringVal: "body.repository.clone_url",
 			},
@@ -38,7 +39,7 @@ func TestParam_Reconcile_ArrayRef(t *testing.T) {
 	ctx := pipelineresolver.WithResolver(context.TODO(), r)
 	p := &Param{
 		Param: v1beta1.Param{
-			Value: v1beta1.ArrayOrString{
+			Value: v1beta1.ParamValue{
 				Type: v1beta1.ParamTypeArray,
 				ArrayVal: []string{
 					"body.repository.clone_url",
@@ -66,7 +67,7 @@ func TestParam_Reconcile_StringDefault(t *testing.T) {
 	ctx := pipelineresolver.WithResolver(context.TODO(), r)
 	p := &Param{
 		Param: v1beta1.Param{
-			Value: v1beta1.ArrayOrString{
+			Value: v1beta1.ParamValue{
 				Type:      v1beta1.ParamTypeString,
 				StringVal: "foo",
 			},
@@ -86,7 +87,7 @@ func TestParam_Reconcile_ArrayDefault(t *testing.T) {
 	ctx := pipelineresolver.WithResolver(context.TODO(), r)
 	p := &Param{
 		Param: v1beta1.Param{
-			Value: v1beta1.ArrayOrString{
+			Value: v1beta1.ParamValue{
 				Type: v1beta1.ParamTypeArray,
 				ArrayVal: []string{
 					"foo",

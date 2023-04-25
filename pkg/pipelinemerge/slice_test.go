@@ -30,14 +30,12 @@ func TestMergeSlice_SameValues(t *testing.T) {
 	}
 	err := mergo.Merge(dst, src, mergo.WithOverride, WithMergeSliceByName())
 	assert.Nil(t, err)
-	assert.Equal(t, []v1beta1.Param{
+	assert.Equal(t, v1beta1.Params{
 		{
 			Name: "param-1",
 			Value: v1beta1.ParamValue{
 				Type:      v1beta1.ParamTypeString,
 				StringVal: "param-1-value",
-				ArrayVal:  []string{},
-				ObjectVal: map[string]string{},
 			},
 		},
 	}, dst.Params)
@@ -65,7 +63,7 @@ func TestMergeSlice_DifferentValues(t *testing.T) {
 	}
 	err := mergo.Merge(dst, src, mergo.WithOverride, WithMergeSliceByName())
 	assert.Nil(t, err)
-	assert.Equal(t, []v1beta1.Param{
+	assert.Equal(t, v1beta1.Params{
 		{
 			Name:  "param-1",
 			Value: v1beta1.ParamValue{},
@@ -112,7 +110,7 @@ func TestMergeSlice_DuplicateValues(t *testing.T) {
 	}
 	err := mergo.Merge(dst, src, mergo.WithOverride, WithMergeSliceByName(mergo.WithOverride))
 	assert.Nil(t, err)
-	assert.Equal(t, []v1beta1.Param{
+	assert.Equal(t, v1beta1.Params{
 		{
 			Name: "param-1",
 			Value: v1beta1.ParamValue{
