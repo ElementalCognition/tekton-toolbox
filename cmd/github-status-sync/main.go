@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/ElementalCognition/tekton-toolbox/internal/chimiddleware"
-	"github.com/ElementalCognition/tekton-toolbox/internal/clusterinterceptorupdater"
+	ciu "github.com/ElementalCognition/tekton-toolbox/internal/clusterinterceptorupdater"
 	"github.com/ElementalCognition/tekton-toolbox/internal/knativeinjection"
 	"github.com/ElementalCognition/tekton-toolbox/internal/serversignals"
 	"github.com/ElementalCognition/tekton-toolbox/internal/viperconfig"
@@ -23,11 +23,7 @@ import (
 	"github.com/google/go-github/v43/github"
 	"github.com/spf13/pflag"
 	"go.uber.org/zap"
-	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/dynamic"
-	"k8s.io/client-go/dynamic/dynamicinformer"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
-	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"knative.dev/pkg/injection"
 	"knative.dev/pkg/logging"
@@ -87,29 +83,6 @@ func getIntercepterName() string {
 	return "github-status-sync"
 }
 
-func newClusterInterceptorInformer(kubeCfg *rest.Config, logger *zap.SugaredLogger) (dynamicinformer.DynamicSharedInformerFactory, cache.SharedIndexInformer) {
-	// Create a dynamic client
-	dynamicClient, err := dynamic.NewForConfig(kubeCfg)
-	if err != nil {
-		logger.Fatalw("Server failed to create dynamic client", zap.Error(err))
-	}
-
-	// Define the GVR for ClusterInterceptor
-	clusterInterceptorGVR := schema.GroupVersionResource{
-		Group:    "triggers.tekton.dev",
-		Version:  "v1alpha1",
-		Resource: "clusterinterceptors",
-	}
-
-	// Create a dynamic informer factory
-	dynamicInformerFactory := dynamicinformer.NewDynamicSharedInformerFactory(dynamicClient, 0)
-
-	// Get the ClusterInterceptor dynamic informer
-	clusterInterceptorInformer := dynamicInformerFactory.ForResource(clusterInterceptorGVR).Informer()
-
-	return dynamicInformerFactory, clusterInterceptorInformer
-}
-
 func init() {
 	flag.String("config", "", "The path to the config file.")
 	flag.String("addr", "0.0.0.0:8443", "The address and port.")
@@ -140,8 +113,8 @@ func main() {
 		logger.Fatalw("Server failed to create Kubernetes client", zap.Error(err))
 	}
 	// Create the ClusterInterceptor dynamic informer and informer factory
-	dynamicInformerFactory, clusterInterceptorInformer := newClusterInterceptorInformer(kubeCfg, logger)
-	dynamicInformerFactory.Start(ctx.Done())
+	dynamicInformerFactory, clusterInterceptorInformer := ciu.NewClusterInterceptorInformer(kubeCfg, logger)
+	go dynamicInformerFactory.Start(ctx.Done())
 	// Wait for the cache to sync
 	if !cache.WaitForCacheSync(ctx.Done(), clusterInterceptorInformer.HasSynced) {
 		logger.Fatalw("Failed to sync cache for informer")
@@ -153,8 +126,8 @@ func main() {
 	svc := githubstatussync.NewService(githubClient)
 	// Set up TLS and interceptor name
 	interceptorName := getIntercepterName()
-	ns := clusterinterceptorupdater.GetNamespace()
-	certs := clusterinterceptorupdater.PrepareTLS(ctx, logger, kubeCfg, interceptorName, ns)
+	ns := ciu.GetNamespace()
+	certs := ciu.PrepareTLS(ctx, logger, kubeCfg, interceptorName, ns)
 	// Set up server and mux
 	mux := newMux(svc, logger)
 	srv := &http.Server{

@@ -18,8 +18,12 @@ import (
 	clusterinterceptorsinformer "github.com/tektoncd/triggers/pkg/client/injection/informers/triggers/v1alpha1/clusterinterceptor"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/dynamic/dynamicinformer"
 	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/cache"
 	kubeclient "knative.dev/pkg/client/injection/kube/client"
 )
 
@@ -28,6 +32,29 @@ func GetNamespace() string {
 		return ns
 	}
 	return "tekton-pipelines"
+}
+
+func NewClusterInterceptorInformer(kubeCfg *rest.Config, logger *zap.SugaredLogger) (dynamicinformer.DynamicSharedInformerFactory, cache.SharedIndexInformer) {
+	// Create a dynamic client
+	dynamicClient, err := dynamic.NewForConfig(kubeCfg)
+	if err != nil {
+		logger.Fatalw("Server failed to create dynamic client", zap.Error(err))
+	}
+
+	// Define the GVR for ClusterInterceptor
+	clusterInterceptorGVR := schema.GroupVersionResource{
+		Group:    "triggers.tekton.dev",
+		Version:  "v1alpha1",
+		Resource: "clusterinterceptors",
+	}
+
+	// Create a dynamic informer factory
+	dynamicInformerFactory := dynamicinformer.NewDynamicSharedInformerFactory(dynamicClient, 0)
+
+	// Get the ClusterInterceptor dynamic informer
+	clusterInterceptorInformer := dynamicInformerFactory.ForResource(clusterInterceptorGVR).Informer()
+
+	return dynamicInformerFactory, clusterInterceptorInformer
 }
 
 // Returns key, cert, caCert and error.
