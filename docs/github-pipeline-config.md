@@ -1,18 +1,14 @@
-# github-pipeline-config
+# GitHub Pipeline Config
 
-> Tekton Interceptor to get [`.tekton.yaml`](./pipeline-config.md) from GitHub
+> Tekton Interceptor for retrieving [`.tekton.yaml`](./pipeline-config.md) from GitHub
 
 ## Overview
 
-`github-pipeline-config` loads [`pipeline-config`](./pipeline-config.md) from GitHub, then tries to read existing one
-from [`InterceptorRequest#extensions["pipeline-config"]`](https://pkg.go.dev/github.com/tektoncd/triggers/pkg/apis/triggers/v1beta1#InterceptorRequest)
-, merges them together, and returns merged result
-as [`InterceptorResponse#extensions["pipeline-config"]`](https://pkg.go.dev/github.com/tektoncd/triggers/pkg/apis/triggers/v1beta1#InterceptorResponse)
-.
+`github-pipeline-config` loads [`pipeline-config`](./pipeline-config.md) from GitHub, attempts to read an existing configuration from [`InterceptorRequest#extensions["pipeline-config"]`](https://pkg.go.dev/github.com/tektoncd/triggers/pkg/apis/triggers/v1beta1#InterceptorRequest), merges them together, and returns merged result as [`InterceptorResponse#extensions["pipeline-config"]`](https://pkg.go.dev/github.com/tektoncd/triggers/pkg/apis/triggers/v1beta1#InterceptorResponse).
 
 ## Service Configuration
 
-`github-pipeline-config` can be configured by using environment variables, a configuration file, or flags.
+`github-pipeline-config` can be configured using environment variables, a configuration file, or flags.
 
 ### Environment Variables
 
@@ -40,13 +36,13 @@ github-installation-id: "6789"
 github-app-key: "/etc/config/github/privateKey.pem"
 ```
 
-By default, `github-pipeline-config` lookups a configuration file in the following order:
+By default, `github-pipeline-config` searches for a configuration file in the following order:
 
 1. `$HOME/.config/github-pipeline-config/config.yaml`
 2. `/etc/config/github-pipeline-config/config.yaml`
 3. `$PWD/config/github-pipeline-config/config.yaml`
 
-Also, `github-pipeline-config` allows to set a path to a configuration file by using a `--config` flag:
+Additionally, `github-pipeline-config` allows setting a path to a configuration file using the `--config` flag:
 
 ```shell
 github-pipeline-config --config=$PWD/github-pipeline-config.yaml
@@ -75,7 +71,7 @@ Sample `Trigger` file:
 
 ```yaml
 ---
-apiVersion: triggers.tekton.dev/v1alpha1
+apiVersion: triggers.tekton.dev/v1beta1
 kind: Trigger
 metadata:
   name: my-trigger
