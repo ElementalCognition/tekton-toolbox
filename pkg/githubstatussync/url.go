@@ -2,8 +2,9 @@ package githubstatussync
 
 import (
 	"bytes"
-	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 	"html/template"
+
+	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 )
 
 const defaultDetailsURL = "https://tekton.dev/#/namespaces/{{ .Namespace }}/taskruns/{{ .Name }}"

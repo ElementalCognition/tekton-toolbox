@@ -11,35 +11,23 @@ import (
 func checkRunOutput(tr *v1beta1.TaskRun, url string) *github.CheckRunOutput {
 	var chkRunAnno []*github.CheckRunAnnotation
 	var logs []string
-	for _, v := range tr.Status.Steps {
-		var s, e string
-		if v.Terminated == nil {
+	for _, step := range tr.Status.Steps {
+		if step.Terminated == nil {
 			fmt.Printf("TaskRun terminated field is nil, skip annotation. TR: %s \n", tr.Name)
 			continue
 		}
-		switch v.Terminated.Reason {
-		case "Completed":
-			s = "notice"
-			e = ":white_check_mark:"
-		case "Failed", "Error":
-			s = "failure"
-			e = ":x:"
-		case "TaskRunCancelled":
-			s = "warning"
-			e = ":warning:"
-		default:
-			s = "notice"
-			e = ":grey_question:"
-		}
-		logs = append(logs, fmt.Sprintf("Raw log for step: [%s](%s/%s/%s/%s) %s.", v.Name, tr.Annotations[logServer.String()], tr.Namespace, tr.Status.PodName, v.ContainerName, e))
+		terminationReason := step.Terminated.Reason
+		annotationLevel, emoji := determineAnnotationLevelAndEmoji(terminationReason)
+
+		logs = append(logs, fmt.Sprintf("Raw log for step: [%s](%s/%s/%s/%s) %s.", step.Name, tr.Annotations[logServer.String()], tr.Namespace, tr.Status.PodName, step.ContainerName, emoji))
 		chkRunAnno = append(chkRunAnno, &github.CheckRunAnnotation{
-			Path:            github.String("README.md"), // Dummy file name, required item.
-			StartLine:       github.Int(1),              // Dummy int, required item.
-			EndLine:         github.Int(1),              // Dummy int, required item.
-			AnnotationLevel: github.String(s),           // Can be one of notice, warning, or failure.
-			Title:           github.String(v.Name),
-			Message:         github.String(fmt.Sprintf("Task %s was finished, reason: %s.", v.Name, v.Terminated.Reason)),
-			RawDetails:      github.String(v.Terminated.Message),
+			Path:            github.String("README.md"),     // Dummy file name, required item.
+			StartLine:       github.Int(1),                  // Dummy int, required item.
+			EndLine:         github.Int(1),                  // Dummy int, required item.
+			AnnotationLevel: github.String(annotationLevel), // Can be one of notice, warning, or failure.
+			Title:           github.String(step.Name),
+			Message:         github.String(fmt.Sprintf("Task %s was finished, reason: %s.", step.Name, terminationReason)),
+			RawDetails:      github.String(step.Terminated.Message),
 		})
 	}
 
@@ -48,6 +36,19 @@ func checkRunOutput(tr *v1beta1.TaskRun, url string) *github.CheckRunOutput {
 		Summary:     github.String(fmt.Sprintf("You can find more details on %s. Check the raw logs if data is no longer available on Tekton Dashboard.", url)),
 		Text:        github.String(strings.Join(logs, "</br>")),
 		Annotations: chkRunAnno,
+	}
+}
+
+func determineAnnotationLevelAndEmoji(reason string) (string, string) {
+	switch reason {
+	case "Completed":
+		return "notice", ":white_check_mark:"
+	case "Failed", "Error":
+		return "failure", ":x:"
+	case "TaskRunCancelled":
+		return "warning", ":warning:"
+	default:
+		return "notice", ":grey_question:"
 	}
 }
 
