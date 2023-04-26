@@ -24,6 +24,7 @@ import (
 	"github.com/spf13/pflag"
 	"go.uber.org/zap"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
+	"k8s.io/client-go/rest"
 	"knative.dev/pkg/injection"
 	"knative.dev/pkg/logging"
 	"knative.dev/pkg/signals"
@@ -92,32 +93,55 @@ func init() {
 	pflag.Parse()
 }
 
-func main() {
+func initializeContextAndLogger() (context.Context, *rest.Config, *zap.SugaredLogger) {
 	ctx := signals.NewContext()
 	kubeCfg := injection.ParseAndGetRESTConfigOrDie()
-	ctx, startInformer := injection.EnableInjectionOrDie(ctx, kubeCfg)
+	ctx, _ = injection.EnableInjectionOrDie(ctx, kubeCfg)
 	logger := knativeinjection.SetupLoggerOrDie(ctx, component)
 	ctx = logging.WithLogger(ctx, logger)
+
+	return ctx, kubeCfg, logger
+}
+
+func initializeConfig(logger *zap.SugaredLogger) config {
 	viperCfg, err := viperconfig.NewConfig(component, pflag.CommandLine)
 	if err != nil {
 		logger.Fatalw("Server failed to initialize config", zap.Error(err))
 	}
+
 	var cfg config
 	err = viperconfig.LoadConfig(viperCfg, &cfg)
 	if err != nil {
 		logger.Fatalw("Server failed to load config", zap.Error(err))
 	}
+
+	return cfg
+}
+
+func createGithubClient(cfg config, logger *zap.SugaredLogger) *github.Client {
 	githubClient, err := newGithubClient(&cfg)
 	if err != nil {
 		logger.Fatalw("Server failed to create GitHub client", zap.Error(err))
 	}
-	svc := githubstatussync.NewService(githubClient)
-	startInformer()
-	intercepterName := getIntercepterName()
+
+	return githubClient
+}
+
+func startInformers(ctx context.Context, kubeCfg *rest.Config) context.Context {
+	ctx, startInformer := injection.EnableInjectionOrDie(ctx, kubeCfg)
+	go startInformer()
+	return ctx
+}
+
+func getInterceptorNameAndNamespace() (string, string) {
+	interceptorName := getIntercepterName()
 	ns := clusterinterceptorupdater.GetNamespace()
-	certs := clusterinterceptorupdater.PrepareTLS(ctx, logger, kubeCfg, intercepterName, ns)
-	mux := newMux(svc, logger)
-	srv := &http.Server{
+
+	return interceptorName, ns
+}
+
+func createHTTPServer(ctx context.Context, cfg config, certs tls.Certificate, mux *chi.Mux) *http.Server {
+	return &http.Server{
 		Addr:         cfg.Addr,
 		TLSConfig:    &tls.Config{Certificates: []tls.Certificate{certs}},
 		ReadTimeout:  readTimeout,
@@ -128,11 +152,29 @@ func main() {
 			return ctx
 		},
 	}
+}
+
+func main() {
+	ctx, kubeCfg, logger := initializeContextAndLogger()
+	cfg := initializeConfig(logger)
+
+	githubClient := createGithubClient(cfg, logger)
+	svc := githubstatussync.NewService(githubClient)
+
+	ctx = startInformers(ctx, kubeCfg)
+
+	interceptorName, ns := getInterceptorNameAndNamespace()
+	certs := clusterinterceptorupdater.PrepareTLS(ctx, logger, kubeCfg, interceptorName, ns)
+
+	mux := newMux(svc, logger)
+	srv := createHTTPServer(ctx, cfg, certs, mux)
+
 	s := serversignals.Server{
 		Server:           srv,
 		Logger:           logger,
 		ForceStopTimeout: forceStopTimeout,
 	}
+
 	if err := s.StartAndWaitSignalsThenShutdown(context.Background()); err != http.ErrServerClosed {
 		logger.Fatalw("Server failed to shutdown", zap.Error(err))
 	}

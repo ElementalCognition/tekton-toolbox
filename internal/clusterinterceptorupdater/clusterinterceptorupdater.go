@@ -18,6 +18,7 @@ import (
 	clusterinterceptorsinformer "github.com/tektoncd/triggers/pkg/client/injection/informers/triggers/v1alpha1/clusterinterceptor"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/rest"
 	kubeclient "knative.dev/pkg/client/injection/kube/client"
@@ -93,6 +94,8 @@ func createUpdateIntercepterCaBundle(ctx context.Context, ciName string, ns stri
 	}
 	ci, err := clusterinterceptorsinformer.Get(ctx).Lister().Get(ciName)
 	if err != nil {
+		all, err := clusterinterceptorsinformer.Get(ctx).Lister().List(labels.Everything())
+		fmt.Println(all, err)
 		log.Infof("Server failed to get clusterinterceptor by name, probably clusterinterceptor wasn't created yet %v. Creating...", zap.Error(err))
 		var port int32 = 8443
 		ci := &v1alpha1.ClusterInterceptor{
