@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/ElementalCognition/tekton-toolbox/internal/chimiddleware"
-	ciu "github.com/ElementalCognition/tekton-toolbox/internal/clusterinterceptorupdater"
+	"github.com/ElementalCognition/tekton-toolbox/internal/clusterinterceptorupdater"
 	"github.com/ElementalCognition/tekton-toolbox/internal/knativeinjection"
 	"github.com/ElementalCognition/tekton-toolbox/internal/serversignals"
 	"github.com/ElementalCognition/tekton-toolbox/internal/viperconfig"
@@ -24,7 +24,6 @@ import (
 	"github.com/spf13/pflag"
 	"go.uber.org/zap"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
-	"k8s.io/client-go/tools/cache"
 	"knative.dev/pkg/injection"
 	"knative.dev/pkg/logging"
 	"knative.dev/pkg/signals"
@@ -95,7 +94,8 @@ func init() {
 
 func main() {
 	ctx := signals.NewContext()
-	// Initialize logging and config
+	kubeCfg := injection.ParseAndGetRESTConfigOrDie()
+	ctx, startInformer := injection.EnableInjectionOrDie(ctx, kubeCfg)
 	logger := knativeinjection.SetupLoggerOrDie(ctx, component)
 	ctx = logging.WithLogger(ctx, logger)
 	viperCfg, err := viperconfig.NewConfig(component, pflag.CommandLine)
@@ -107,28 +107,15 @@ func main() {
 	if err != nil {
 		logger.Fatalw("Server failed to load config", zap.Error(err))
 	}
-	// Set up Kubernetes client and informers
-	kubeCfg := injection.ParseAndGetRESTConfigOrDie()
-	if err != nil {
-		logger.Fatalw("Server failed to create Kubernetes client", zap.Error(err))
-	}
-	// Create the ClusterInterceptor dynamic informer and informer factory
-	dynamicInformerFactory, clusterInterceptorInformer := ciu.NewClusterInterceptorInformer(kubeCfg, logger)
-	go dynamicInformerFactory.Start(ctx.Done())
-	// Wait for the cache to sync
-	if !cache.WaitForCacheSync(ctx.Done(), clusterInterceptorInformer.HasSynced) {
-		logger.Fatalw("Failed to sync cache for informer")
-	}
 	githubClient, err := newGithubClient(&cfg)
 	if err != nil {
 		logger.Fatalw("Server failed to create GitHub client", zap.Error(err))
 	}
 	svc := githubstatussync.NewService(githubClient)
-	// Set up TLS and interceptor name
-	interceptorName := getIntercepterName()
-	ns := ciu.GetNamespace()
-	certs := ciu.PrepareTLS(ctx, logger, kubeCfg, interceptorName, ns)
-	// Set up server and mux
+	startInformer()
+	intercepterName := getIntercepterName()
+	ns := clusterinterceptorupdater.GetNamespace()
+	certs := clusterinterceptorupdater.PrepareTLS(ctx, logger, kubeCfg, intercepterName, ns)
 	mux := newMux(svc, logger)
 	srv := &http.Server{
 		Addr:         cfg.Addr,
@@ -141,7 +128,6 @@ func main() {
 			return ctx
 		},
 	}
-	// Start server
 	s := serversignals.Server{
 		Server:           srv,
 		Logger:           logger,
