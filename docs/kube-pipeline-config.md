@@ -64,7 +64,7 @@ Sample `Trigger` file:
 
 ```yaml
 ---
-apiVersion: triggers.tekton.dev/v1alpha1
+apiVersion: triggers.tekton.dev/v1beta1
 kind: Trigger
 metadata:
   name: my-trigger

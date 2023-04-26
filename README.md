@@ -1,31 +1,26 @@
-# tekton-toolbox
+# Tekton Toolbox
 
-> Toolbox for Tekton
+> A toolbox for Tekton
 
 ## Overview
 
-A set of tools and services which simplify a process to work with Tekton.
+A collection of tools and services designed to streamline working with Tekton:
 
-- [`gcs-log-proxy`](./docs/gcs-log-proxy.md) - A proxy to load Tekton external logs from Google Cloud Storage.
-- [`github-pipeline-config`](./docs/github-pipeline-config.md) - Tekton Interceptor to
-  get [`pipeline-config`](./docs/pipeline-config.md) from GitHub.
-- [`github-status-sync`](./docs/github-status-sync.md) - Tekton Interceptor to sync Tekton status with GitHub based
-  on [Cloud Event](https://tekton.dev/docs/pipelines/events/#events-via-cloudevents).
-- [`kube-pipeline-config`](./docs/kube-pipeline-config.md) - Tekton Interceptor to
-  get [`pipeline-config`](./docs/pipeline-config.md) from Kubernetes ConfigMap.
-- [`pipeline-config-trigger`](./docs/pipeline-config-trigger.md) - Tekton Interceptor to get a list of
-  Tekton `PipelineRun`
-  from [`pipeline-config`](./docs/pipeline-config.md) and trigger them.
+- [`gcs-log-proxy`](./docs/gcs-log-proxy.md) - A proxy for loading Tekton external logs from Google Cloud Storage.
+- [`github-pipeline-config`](./docs/github-pipeline-config.md) - Tekton Interceptor for retrieving [`pipeline-config`](./docs/pipeline-config.md) from GitHub.
+- [`github-status-sync`](./docs/github-status-sync.md) - Tekton Interceptor for synchronizing Tekton status with GitHub using [Cloud Events](https://tekton.dev/docs/pipelines/events/#events-via-cloudevents).
+- [`kube-pipeline-config`](./docs/kube-pipeline-config.md) - Tekton Interceptor for obtaining [`pipeline-config`](./docs/pipeline-config.md) from Kubernetes ConfigMap.
+- [`pipeline-config-trigger`](./docs/pipeline-config-trigger.md) - Tekton Interceptor for retrieving a list of Tekton `PipelineRun` from [`pipeline-config`](./docs/pipeline-config.md) and triggering them.
 
-## Interceptors setup
+## Interceptor Setup
 
-To deploy interceptor (the same approach works for each cluster interceptor listed abouve) e.g `kube-pipeline-config`
+To deploy an interceptor (the same approach works for each cluster interceptor listed above), e.g., `kube-pipeline-config`:
 
-k8s deployment must have the following ENV vars:
+The k8s deployment must include the following environment variables:
 ```yaml
 - name: SYSTEM_NAMESPACE
   value: tekton-pipelines
-- name: INTERCEPTER_NAME  # Keep k8s service name and clusterintercepter name the same.
+- name: INTERCEPTER_NAME  # Keep the k8s service name and clusterinterceptor name the same.
   value: kube-pipeline-config
 - name: SVC_NAMESPACE
   valueFrom:
@@ -33,7 +28,7 @@ k8s deployment must have the following ENV vars:
       fieldPath: metadata.namespace
 ```
 
-k8s deployment must use https to check readiness and liveness:
+The k8s deployment must use HTTPS for readiness and liveness checks:
 ```yaml
 readinessProbe:
   httpGet:
@@ -48,11 +43,8 @@ livenessProbe:
     scheme: HTTPS
 ```
 
-Interceptor will listens only on 8443 port HTTPS on start, an interceptor will check if the secret (the secret name has the interceptor's name) with certificates exists.
-If it's missing interceptor will create one and fill it with the data. Next start and/or redeploy will check if it exists and use existing certs.
-Custom resource `kind: ClusterInterceptor` will be created by the interceptor and updated with `caBundle` taking `ca-cert.pem` from the secret.
+The interceptor will only listen on port 8443 for HTTPS connections. When starting, the interceptor checks if a secret (with the same name as the interceptor) containing certificates exists. If it's missing, the interceptor will create one and populate it with the necessary data. On subsequent starts and/or redeployments, it will check for the existence of the secret and use the existing certificates. A custom resource `kind: ClusterInterceptor` will be created by the interceptor and updated with the `caBundle` using the `ca-cert.pem` from the secret.
 
 > IMPORTANT
 
-If a cert secret was deleted, certificates will be regenerated and `caBundle` will be updated accordingly. You <span style="color:red">**MUST**</span> restart `deploy/el-github-listener` and `deploy/el-events-listener` otherwise events-listeners will with `X509 SelfSign certificate` error.
-
+If the certificate secret is deleted, certificates will be regenerated, and the `caBundle` will be updated accordingly. You **MUST** restart `deploy/el-github-listener` and `deploy/el-events-listener`, otherwise the events-listeners will encounter an `X509 SelfSign certificate` error.
