@@ -1,0 +1,61 @@
+---
+defaults:
+  timeouts:
+    pipeline: 1h
+    tasks: 1h
+    finally: 1h
+  metadata:
+    annotations:
+      github.integrations.tekton.dev/owner: body.repository.owner.login
+      github.integrations.tekton.dev/repo: body.repository.name
+      github.integrations.tekton.dev/commit: >-
+        "pull_request" in body
+          ? body.pull_request.head.sha
+          : body.head_commit.id
+      github.integrations.tekton.dev/url: >-
+        https://tekton.dev/#/namespaces/{{ .Namespace }}/pipelineruns/{{ index .Labels "tekton.dev/pipelineRun" }}?pipelineTask={{ index .Labels "tekton.dev/pipelineTask" }}
+      github.integrations.tekton.dev/name: >-
+        {{ index .Labels "tekton.dev/pipelineTask" }}
+  params:
+    - name: git-repo-clone-url
+      value: body.repository.clone_url
+    - name: git-repo-name
+      value: body.repository.name
+    - name: git-repo-owner-name
+      value: body.repository.owner.login
+    - name: git-repo-ref
+      value: >-
+        "pull_request" in body
+          ? body.pull_request.head.sha
+          : body.head_commit.id
+triggers:
+  - name: pr
+    filter: >-
+      "action" in body &&  body.action in ["opened", "synchronize", "reopened"]
+    pipelines:
+      - name: pr-pipeline-1
+        pipelineRef:
+          name: pipeline-1
+      - name: pr-pipeline-2
+        pipelineRef:
+          name: pipeline-2
+      - name: pr-pipeline-3
+        pipelineRef:
+          name: pipeline-3
+      - name: pr-pipeline-git-resovers
+        pipelineRef:
+          resolver: git
+          params:
+            - name: url
+              value: https://github.com/ElementalCognition/tekton-catalog-test.git
+            - name: revision
+              value: main
+            - name: pathInRepo
+              value: /pipeline/protos/0.3/protos-go.yaml
+  - name: main
+    filter: >-
+      "ref" in body && body.ref == "refs/heads/main"
+    pipelines:
+      - name: main-pipeline-1
+        pipelineRef:
+          name: pipeline-1
