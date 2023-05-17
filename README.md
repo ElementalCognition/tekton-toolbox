@@ -17,6 +17,16 @@ A set of tools and services which simplify a process to work with Tekton.
   Tekton `PipelineRun`
   from [`pipeline-config`](./docs/pipeline-config.md) and trigger them.
 
+## Simple flow
+1. :octocat: **GitHub Webhook**
+   - :inbox_tray: Receive payload
+2. :gear: **Kube-Pipeline-Config**
+   - :file_folder: Retrieve default PipelineRun config from ConfigMap
+3. :octocat: **GitHub-Pipeline-Config**
+   - :scroll: Get `.tekton.yaml` from the repository
+4. :zap: **Pipeline-Config-Trigger**
+   - :twisted_rightwards_arrows: Merge and generate configs for PipelineRuns
+
 ## Interceptors setup
 
 To deploy interceptor (the same approach works for each cluster interceptor listed abouve) e.g `kube-pipeline-config`
