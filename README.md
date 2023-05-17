@@ -48,6 +48,8 @@ livenessProbe:
     scheme: HTTPS
 ```
 
+
+
 Interceptor will listens only on 8443 port HTTPS on start, an interceptor will check if the secret (the secret name has the interceptor's name) with certificates exists.
 If it's missing interceptor will create one and fill it with the data. Next start and/or redeploy will check if it exists and use existing certs.
 Custom resource `kind: ClusterInterceptor` will be created by the interceptor and updated with `caBundle` taking `ca-cert.pem` from the secret.
