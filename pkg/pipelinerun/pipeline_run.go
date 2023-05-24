@@ -3,6 +3,7 @@ package pipelinerun
 import (
 	"context"
 	"fmt"
+
 	"github.com/ElementalCognition/tekton-toolbox/pkg/pipelinemerge"
 	"github.com/ElementalCognition/tekton-toolbox/pkg/pipelineresolver"
 	"github.com/imdario/mergo"
@@ -16,6 +17,8 @@ type PipelineRun struct {
 	Metadata `json:"metadata,omitempty"`
 	Params   ParamSlice `json:"params,omitempty"`
 }
+
+type PipelineSlice []PipelineRun
 
 var _ pipelineresolver.Reconciler = (*PipelineRun)(nil)
 
@@ -63,5 +66,3 @@ func (p *PipelineRun) PipelineRun() (*v1beta1.PipelineRun, error) {
 		Spec:       *spec,
 	}, nil
 }
-
-type PipelineSlice []PipelineRun
