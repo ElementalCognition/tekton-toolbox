@@ -30,7 +30,7 @@ func tlsVerify(t *testing.T, cert, cacert []byte) error {
 	vo := x509.VerifyOptions{
 		DNSName:     fmt.Sprintf("%s.%s.svc", svcName, tknNS),
 		Roots:       certPool,
-		CurrentTime: time.Now().AddDate(9, 11, 30),
+		CurrentTime: time.Now().AddDate(9, 11, 29),
 	}
 	_, err = leafCert.Verify(vo)
 	if err != nil {
