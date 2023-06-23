@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/ElementalCognition/tekton-toolbox/pkg/pipelineconfig"
 	"github.com/ElementalCognition/tekton-toolbox/pkg/pipelinerun"
+	"github.com/fatih/color"
 	"github.com/spf13/pflag"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 	"sigs.k8s.io/yaml"
@@ -20,6 +22,7 @@ var (
 )
 
 func init() {
+	color.NoColor = false
 	flag.StringVar(&configDefault, "config-default", "", "The path to the default trigger config.")
 	flag.StringVar(&configLocal, "config-local", "", "The path to the local trigger config `.tekton.yaml`.")
 	flag.BoolVar(&verbose, "verbose", false, "Print generated pipelineRuns.")
@@ -64,21 +67,34 @@ func PipelineRuns(c pipelineconfig.Config) ([]*v1beta1.PipelineRun, error) {
 	return prs, nil
 }
 
-func processPipelineRuns(cfg *pipelineconfig.Config) {
+func processPipelineRuns(cfg *pipelineconfig.Config) ([]byte, bool) {
 	pprs, err := PipelineRuns(*cfg)
 	if err != nil {
 		log.Fatalf("Can't get PPRs: %v", err)
 	}
 
+	red := color.New(color.FgHiRed).SprintFunc()
+	green := color.New(color.FgHiGreen).SprintFunc()
+
+	var pprYaml []byte
+	var allValid = true
+
 	for _, p := range pprs {
 		pp, err := yaml.Marshal(p)
 		if err != nil {
-			log.Fatalf("Can't marshal ppr: %v", err)
+			log.Fatalf("Can't marshal ppr: %v", red(err))
 		}
-		if verbose {
-			fmt.Println(string(pp))
+		pprYaml = append(pprYaml, pp...)
+
+		errs := p.Spec.Validate(context.TODO())
+		if len(errs.Error()) > 0 {
+			log.Printf("Pipeline %s: %v. Error: %v", p.GenerateName, red("Failed"), red(errs))
+			allValid = false
+		} else {
+			log.Printf("Pipeline %s: %v", p.GenerateName, green("Valid"))
 		}
 	}
+	return pprYaml, allValid
 }
 
 func main() {
@@ -99,5 +115,11 @@ func main() {
 		log.Fatalf("Can't merge configs: %v", err)
 	}
 
-	processPipelineRuns(ppDefConf)
+	ppr, fail := processPipelineRuns(ppDefConf)
+	if verbose {
+		fmt.Println(string(ppr))
+	}
+	if !fail {
+		log.Fatal("Pipelines validation failed.")
+	}
 }
