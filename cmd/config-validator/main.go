@@ -117,7 +117,7 @@ func main() {
 
 	ppr, fail := processPipelineRuns(ppDefConf)
 	if verbose {
-		fmt.Println(string(ppr))
+		fmt.Printf("---\n%s", string(ppr))
 	}
 	if !fail {
 		log.Fatal("Pipelines validation failed.")
