@@ -1,0 +1,22 @@
+name: 'tekton-pipeline-check'
+description: 'Generate tekton pipelineRuns from given configurations'
+inputs:
+  config-default:
+    description: 'The path to the default trigger config.'
+    required: true
+  config-local:
+    description: 'The path to the local trigger config.'
+    required: true
+  validator-version:
+    description: 'Validator image version to use.'
+    required: true
+  verbose:
+    description: 'Print generated pipelineRuns.'
+    required: false
+runs:
+  using: 'composite'
+  steps:
+    - run: docker pull ghcr.io/elementalcognition/tkn-config-validator:${{ inputs.validator-version }}
+      shell: bash
+    - run: docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace ghcr.io/elementalcognition/tkn-config-validator:${{ inputs.validator-version }} --config-default '${{ inputs.config-default }}' --config-local '${{ inputs.config-local }}' '${{ inputs.verbose }}'
+      shell: bash
