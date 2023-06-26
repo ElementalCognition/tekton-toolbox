@@ -46,7 +46,7 @@ triggers:
             - name: revision
               value: main
             - name: pathInRepo
-              value: pipeline/buildkit/0.1/buildkit.yaml
+              value: pipeline/buildkit/0.2/buildkit.yaml
         params:
           - name: name
             value: gcs-log-proxy
@@ -70,7 +70,7 @@ triggers:
             - name: revision
               value: main
             - name: pathInRepo
-              value: pipeline/buildkit/0.1/buildkit.yaml
+              value: pipeline/buildkit/0.2/buildkit.yaml
         params:
           - name: name
             value: github-pipeline-config
@@ -94,7 +94,7 @@ triggers:
             - name: revision
               value: main
             - name: pathInRepo
-              value: pipeline/buildkit/0.1/buildkit.yaml
+              value: pipeline/buildkit/0.2/buildkit.yaml
         params:
           - name: name
             value: github-status-sync
@@ -118,7 +118,7 @@ triggers:
             - name: revision
               value: main
             - name: pathInRepo
-              value: pipeline/buildkit/0.1/buildkit.yaml
+              value: pipeline/buildkit/0.2/buildkit.yaml
         params:
           - name: name
             value: kube-pipeline-config
@@ -142,7 +142,7 @@ triggers:
             - name: revision
               value: main
             - name: pathInRepo
-              value: pipeline/buildkit/0.1/buildkit.yaml
+              value: pipeline/buildkit/0.2/buildkit.yaml
         params:
           - name: name
             value: pipeline-config-trigger
@@ -154,6 +154,30 @@ triggers:
             value: body.pull_request.head.sha
           - name: cache-image
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/pipeline-config-trigger
+      - name: buildkit-config-validator
+        metadata:
+          annotations:
+            tekton.ec.ai/memberOf: config-validator
+        pipelineRef:
+          resolver: git
+          params:
+            - name: repo
+              value: tekton-catalog-new
+            - name: revision
+              value: main
+            - name: pathInRepo
+              value: pipeline/buildkit/0.2/buildkit.yaml
+        params:
+          - name: name
+            value: config-validator
+          - name: dockerfile
+            value: cmd/config-validator/Dockerfile
+          - name: image
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/platform/dev/tekton-toolbox/config-validator
+          - name: tag
+            value: body.pull_request.head.sha
+          - name: cache-image
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/config-validator
       - name: whitesource
         pipelineRef:
           resolver: git
@@ -197,7 +221,7 @@ triggers:
             - name: revision
               value: main
             - name: pathInRepo
-              value: pipeline/gitops/0.2/gitops-release.yaml
+              value: pipeline/gitops/0.3/gitops-release.yaml
         params:
           - name: argocd-name
             value: tekton-toolbox
@@ -235,7 +259,7 @@ triggers:
             - name: revision
               value: main
             - name: pathInRepo
-              value: pipeline/gitops/0.2/gitops-release.yaml
+              value: pipeline/gitops/0.3/gitops-release.yaml
         params:
           - name: argocd-name
             value: tekton-toolbox
@@ -273,7 +297,7 @@ triggers:
             - name: revision
               value: main
             - name: pathInRepo
-              value: pipeline/gitops/0.2/gitops-release.yaml
+              value: pipeline/gitops/0.3/gitops-release.yaml
         params:
           - name: argocd-name
             value: tekton-toolbox
@@ -311,7 +335,7 @@ triggers:
             - name: revision
               value: main
             - name: pathInRepo
-              value: pipeline/gitops/0.2/gitops-release.yaml
+              value: pipeline/gitops/0.3/gitops-release.yaml
         params:
           - name: argocd-name
             value: tekton-toolbox
@@ -349,7 +373,7 @@ triggers:
             - name: revision
               value: main
             - name: pathInRepo
-              value: pipeline/gitops/0.2/gitops-release.yaml
+              value: pipeline/gitops/0.3/gitops-release.yaml
         params:
           - name: argocd-name
             value: tekton-toolbox
@@ -375,6 +399,30 @@ triggers:
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/pipeline-config-trigger
           - name: buildkit-cache-tag
             value: latest
+      - name: buildkit-config-validator
+        metadata:
+          annotations:
+            tekton.ec.ai/memberOf: config-validator
+        pipelineRef:
+          resolver: git
+          params:
+            - name: repo
+              value: tekton-catalog-new
+            - name: revision
+              value: main
+            - name: pathInRepo
+              value: pipeline/buildkit/0.2/buildkit.yaml
+        params:
+          - name: name
+            value: config-validator
+          - name: dockerfile
+            value: cmd/config-validator/Dockerfile
+          - name: image
+            value: ghcr.io/elementalcognition/tkn-config-validator
+          - name: tag
+            value: body.pull_request.head.sha
+          - name: cache-image
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/config-validator
       - name: whitesource
         pipelineRef:
           resolver: git
