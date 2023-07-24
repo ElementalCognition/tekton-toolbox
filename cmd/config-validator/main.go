@@ -28,7 +28,7 @@ func init() {
 	flag.StringVar(&configDefault, "config-default", "", "The path to the default trigger config.")
 	flag.StringVar(&configLocal, "config-local", "", "The path to the local trigger config `.tekton.yaml`.")
 	flag.BoolVar(&verbose, "verbose", false, "Print generated pipelineRuns.")
-	flag.BoolVar(&alphaFeatureGate, "alphaFeatureGate", true, "Config enable-api-fields alpha.")
+	flag.BoolVar(&alphaFeatureGate, "alphaFeatureGate", false, "Config enable-api-fields alpha.")
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
 }
@@ -102,15 +102,11 @@ func processPipelineRuns(cfg *pipelineconfig.Config) ([]byte, bool) {
 		}
 		pprYaml = append(pprYaml, pp...)
 
-		var ctx context.Context
+		ctx := context.TODO()
 		if alphaFeatureGate {
-			ctx, err = setFeatureFlags()
-			if err != nil {
-				log.Fatalf("unexpected error initializing feature flags: %v", err)
-			}
-		} else {
-			ctx = context.TODO()
+			ctx = config.EnableAlphaAPIFields(ctx)
 		}
+
 		errs := p.Spec.Validate(ctx)
 		if len(errs.Error()) > 0 {
 			log.Printf("Pipeline %s: %v. Error: %v", p.GenerateName, red("Failed"), red(errs))
