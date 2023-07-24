@@ -70,19 +70,6 @@ func PipelineRuns(c pipelineconfig.Config) ([]*v1beta1.PipelineRun, error) {
 	return prs, nil
 }
 
-func setFeatureFlags() (context.Context, error) {
-	featureFlags, err := config.NewFeatureFlagsFromMap(map[string]string{
-		"enable-api-fields": "alpha",
-	})
-	if err != nil {
-		return nil, err
-	}
-	cfg := &config.Config{
-		FeatureFlags: featureFlags,
-	}
-	return config.ToContext(context.Background(), cfg), nil
-}
-
 func processPipelineRuns(cfg *pipelineconfig.Config) ([]byte, bool) {
 	pprs, err := PipelineRuns(*cfg)
 	if err != nil {
