@@ -11,14 +11,16 @@ import (
 	"github.com/ElementalCognition/tekton-toolbox/pkg/pipelinerun"
 	"github.com/fatih/color"
 	"github.com/spf13/pflag"
+	"github.com/tektoncd/pipeline/pkg/apis/config"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 	"sigs.k8s.io/yaml"
 )
 
 var (
-	configDefault string
-	configLocal   string
-	verbose       bool
+	configDefault    string
+	configLocal      string
+	verbose          bool
+	alphaFeatureGate bool
 )
 
 func init() {
@@ -26,6 +28,7 @@ func init() {
 	flag.StringVar(&configDefault, "config-default", "", "The path to the default trigger config.")
 	flag.StringVar(&configLocal, "config-local", "", "The path to the local trigger config `.tekton.yaml`.")
 	flag.BoolVar(&verbose, "verbose", false, "Print generated pipelineRuns.")
+	flag.BoolVar(&alphaFeatureGate, "alphaFeatureGate", false, "Config enable-api-fields alpha.")
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
 }
@@ -86,7 +89,12 @@ func processPipelineRuns(cfg *pipelineconfig.Config) ([]byte, bool) {
 		}
 		pprYaml = append(pprYaml, pp...)
 
-		errs := p.Spec.Validate(context.TODO())
+		ctx := context.TODO()
+		if alphaFeatureGate {
+			ctx = config.EnableAlphaAPIFields(ctx)
+		}
+
+		errs := p.Spec.Validate(ctx)
 		if len(errs.Error()) > 0 {
 			log.Printf("Pipeline %s: %v. Error: %v", p.GenerateName, red("Failed"), red(errs))
 			allValid = false
