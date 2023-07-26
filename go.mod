@@ -15,7 +15,7 @@ require (
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.3
 	github.com/tektoncd/pipeline v0.47.0
-	github.com/tektoncd/triggers v0.23.1
+	github.com/tektoncd/triggers v0.24.1
 	go.uber.org/zap v1.24.0
 	golang.org/x/sync v0.3.0
 	google.golang.org/api v0.133.0
