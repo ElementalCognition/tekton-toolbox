@@ -3,7 +3,7 @@ module github.com/ElementalCognition/tekton-toolbox
 go 1.19
 
 require (
-	cloud.google.com/go/storage v1.30.1
+	cloud.google.com/go/storage v1.31.0
 	github.com/bradleyfalzon/ghinstallation v1.1.1
 	github.com/fatih/color v1.15.0
 	github.com/go-chi/chi v1.5.4
