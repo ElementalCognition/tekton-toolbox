@@ -18,7 +18,7 @@ require (
 	github.com/tektoncd/triggers v0.24.1
 	go.uber.org/zap v1.24.0
 	golang.org/x/sync v0.3.0
-	google.golang.org/api v0.133.0
+	google.golang.org/api v0.134.0
 	google.golang.org/grpc v1.56.2
 	gopkg.in/go-playground/pool.v3 v3.1.1
 	k8s.io/api v0.25.9
