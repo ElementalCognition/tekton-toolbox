@@ -11,7 +11,7 @@ import (
 	"github.com/ElementalCognition/tekton-toolbox/pkg/pipelinerun"
 	"github.com/fatih/color"
 	"github.com/spf13/pflag"
-	"github.com/tektoncd/pipeline/pkg/apis/config"
+	cfgtest "github.com/tektoncd/pipeline/pkg/apis/config/testing"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 	"sigs.k8s.io/yaml"
 )
@@ -91,7 +91,7 @@ func processPipelineRuns(cfg *pipelineconfig.Config) ([]byte, bool) {
 
 		ctx := context.TODO()
 		if alphaFeatureGate {
-			ctx = config.EnableAlphaAPIFields(ctx)
+			ctx = cfgtest.EnableAlphaAPIFields(ctx)
 		}
 
 		errs := p.Spec.Validate(ctx)
