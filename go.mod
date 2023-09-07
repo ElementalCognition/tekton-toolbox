@@ -14,7 +14,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4
-	github.com/tektoncd/pipeline v0.51.0
+	github.com/tektoncd/pipeline v0.50.1
 	github.com/tektoncd/triggers v0.24.1
 	go.uber.org/zap v1.25.0
 	golang.org/x/sync v0.3.0
@@ -24,7 +24,7 @@ require (
 	k8s.io/api v0.27.1
 	k8s.io/apimachinery v0.27.1
 	k8s.io/client-go v0.27.1
-	knative.dev/pkg v0.0.0-20230718152110-aef227e72ead
+    knative.dev/pkg v0.0.0-20230418073056-dfad48eaa5d0
 	sigs.k8s.io/yaml v1.3.0
 )
 
