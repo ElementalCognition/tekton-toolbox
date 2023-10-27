@@ -234,7 +234,7 @@ triggers:
               src
           - name: gitops-script
             value: |
-              kustomize edit set image "us-east4-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/gcs-log-proxy=$BUILDKIT_IMAGE"
+              kustomize edit set image "us-central1-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/gcs-log-proxy=$BUILDKIT_IMAGE"
           - name: buildkit-name
             value: tekton-pipeline-config
           - name: buildkit-dockerfile
@@ -272,7 +272,7 @@ triggers:
               src
           - name: gitops-script
             value: |
-              kustomize edit set image "us-east4-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/github-pipeline-config=$BUILDKIT_IMAGE"
+              kustomize edit set image "us-central1-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/github-pipeline-config=$BUILDKIT_IMAGE"
           - name: buildkit-name
             value: tekton-pipeline-config
           - name: buildkit-dockerfile
@@ -310,7 +310,7 @@ triggers:
               src
           - name: gitops-script
             value: |
-              kustomize edit set image "us-east4-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/github-status-sync=$BUILDKIT_IMAGE"
+              kustomize edit set image "us-central1-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/github-status-sync=$BUILDKIT_IMAGE"
           - name: buildkit-name
             value: tekton-pipeline-config
           - name: buildkit-dockerfile
@@ -348,7 +348,7 @@ triggers:
               src
           - name: gitops-script
             value: |
-              kustomize edit set image "us-east4-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/kube-pipeline-config=$BUILDKIT_IMAGE"
+              kustomize edit set image "us-central1-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/kube-pipeline-config=$BUILDKIT_IMAGE"
           - name: buildkit-name
             value: tekton-pipeline-config
           - name: buildkit-dockerfile
@@ -386,7 +386,7 @@ triggers:
               src
           - name: gitops-script
             value: |
-              kustomize edit set image "us-east4-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/pipeline-config-trigger=$BUILDKIT_IMAGE"
+              kustomize edit set image "us-central1-docker.pkg.dev/elementalcognition-app-source/platform/tekton-toolbox/pipeline-config-trigger=$BUILDKIT_IMAGE"
           - name: buildkit-name
             value: tekton-pipeline-config
           - name: buildkit-dockerfile
