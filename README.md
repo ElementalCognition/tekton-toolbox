@@ -65,4 +65,3 @@ Custom resource `kind: ClusterInterceptor` will be created by the interceptor an
 > IMPORTANT
 
 If a cert secret was deleted, certificates will be regenerated and `caBundle` will be updated accordingly. You <span style="color:red">**MUST**</span> restart `deploy/el-github-listener` and `deploy/el-events-listener` otherwise events-listeners will with `X509 SelfSign certificate` error.
-
