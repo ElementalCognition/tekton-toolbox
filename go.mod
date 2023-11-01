@@ -3,7 +3,7 @@ module github.com/ElementalCognition/tekton-toolbox
 go 1.19
 
 require (
-	cloud.google.com/go/storage v1.30.1
+	cloud.google.com/go/storage v1.34.0
 	github.com/bradleyfalzon/ghinstallation v1.1.1
 	github.com/fatih/color v1.15.0
 	github.com/go-chi/chi v1.5.4
@@ -19,7 +19,7 @@ require (
 	go.uber.org/zap v1.24.0
 	golang.org/x/sync v0.3.0
 	google.golang.org/api v0.145.0
-	google.golang.org/grpc v1.58.2
+	google.golang.org/grpc v1.59.0
 	gopkg.in/go-playground/pool.v3 v3.1.1
 	k8s.io/api v0.25.9
 	k8s.io/apimachinery v0.26.4
@@ -113,12 +113,12 @@ require (
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/automaxprocs v1.4.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
-	golang.org/x/crypto v0.13.0 // indirect
+	golang.org/x/crypto v0.14.0 // indirect
 	golang.org/x/exp v0.0.0-20230307190834-24139beb5833 // indirect
-	golang.org/x/net v0.15.0 // indirect
+	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/oauth2 v0.12.0 // indirect
-	golang.org/x/sys v0.12.0 // indirect
-	golang.org/x/term v0.12.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/term v0.13.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
