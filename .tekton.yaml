@@ -166,7 +166,7 @@ triggers:
             - name: revision
               value: main
             - name: pathInRepo
-              value: pipeline/buildkit/0.2/buildkit.yaml
+              value: pipeline/buildkit/0.1/buildkit.yaml
         params:
           - name: name
             value: config-validator
@@ -411,7 +411,7 @@ triggers:
             - name: revision
               value: main
             - name: pathInRepo
-              value: pipeline/buildkit/0.2/buildkit.yaml
+              value: pipeline/buildkit/0.1/buildkit.yaml
         params:
           - name: name
             value: config-validator
