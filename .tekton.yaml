@@ -166,7 +166,7 @@ triggers:
             - name: revision
               value: main
             - name: pathInRepo
-              value: pipeline/buildkit/0.1/buildkit.yaml
+              value: pipeline/buildkit/0.2/buildkit.yaml
         params:
           - name: name
             value: config-validator
@@ -399,6 +399,30 @@ triggers:
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/pipeline-config-trigger
           - name: buildkit-cache-tag
             value: latest
+      - name: buildkit-config-validator
+        metadata:
+          annotations:
+            tekton.ec.ai/memberOf: config-validator
+        pipelineRef:
+          resolver: git
+          params:
+            - name: repo
+              value: tekton-catalog-new
+            - name: revision
+              value: main
+            - name: pathInRepo
+              value: pipeline/buildkit/0.2/buildkit.yaml
+        params:
+          - name: name
+            value: config-validator
+          - name: dockerfile
+            value: cmd/config-validator/Dockerfile
+          - name: image
+            value: ghcr.io/elementalcognition/tkn-config-validator
+          - name: tag
+            value: body.head_commit.id
+          - name: cache-image
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/config-validator
       - name: whitesource
         pipelineRef:
           resolver: git
