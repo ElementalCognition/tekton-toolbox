@@ -15,6 +15,6 @@ RUN --mount=type=cache,id=gomod,target=/go/pkg/mod \
     --mount=type=cache,id=gobuild,target=/root/.cache/go-build \
     go build -o /go/bin/pipeline-config-trigger ./cmd/pipeline-config-trigger
 
-FROM alpine:3.16.2
+FROM alpine:3.19.0
 COPY --from=build /go/bin/pipeline-config-trigger /usr/local/bin/pipeline-config-trigger
 CMD ["pipeline-config-trigger"]
