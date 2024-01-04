@@ -2,6 +2,7 @@ package githubstatussync
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ElementalCognition/tekton-toolbox/pkg/cloudeventsync"
 	"github.com/google/go-github/v43/github"
@@ -16,13 +17,18 @@ type service struct {
 
 var _ cloudeventsync.Service = (*service)(nil)
 
-func (s *service) Sync(ctx context.Context, eventType string, cloudEvent *cloudevent.TektonCloudEventData) error {
+func (s *service) Sync(
+	ctx context.Context,
+	eventType string,
+	cloudEvent *cloudevent.TektonCloudEventData,
+) error {
 	logger := logging.FromContext(ctx)
 	tr := cloudEvent.TaskRun
 	if tr == nil {
 		logger.Warnw("Service received unsupported cloud event; skipping")
 		return nil
 	}
+	fmt.Printf("Full TaskRun event: %+v\n", tr)
 	cro, err := checkRun(eventType, tr)
 	if err != nil {
 		return err
