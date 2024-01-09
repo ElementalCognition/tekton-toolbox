@@ -81,8 +81,9 @@ func checkRun(eventType string, tr *v1beta1.TaskRun) (*github.CreateCheckRunOpti
 		return nil, err
 	}
 	fmt.Printf("TaskRun params: %+v\n", tr.Spec.Params)
-	fmt.Printf("TaskRun status: %+v\n", tr.Status.Conditions)
-	status, conclusion := status(eventType)
+	fmt.Printf("TaskRun status: %+v\n", tr.Status.GetConditions()[0].Reason)
+	// TODO hardcoding the first condition for now. Probably should be done better
+	status, conclusion := status(eventType, tr.Status.GetConditions()[0].Reason)
 	completedAt := timestamp(tr.Status.CompletionTime)
 	switch status {
 	case checkRunStatusInProgress:
