@@ -14,14 +14,13 @@ var (
 // Subset of check conclusions when check has "completed" status.
 // https://docs.github.com/en/rest/guides/using-the-rest-api-to-interact-with-checks?apiVersion=2022-11-28#about-check-suites
 var (
-	checkRunConclusionSuccess = "success"
-	// checkRunConclusionNeutral   = "neutral"
+	checkRunConclusionSuccess   = "success"
 	checkRunConclusionTimedOut  = "timed_out"
 	checkRunConclusionCancelled = "cancelled"
 	checkRunConclusionFailure   = "failure"
 )
 
-func get_failure_conclusion(reason string) *string {
+func getFailureConclusion(reason string) *string {
 	var failureConclusion *string
 	switch reason {
 	case v1beta1.TaskRunReasonCancelled.String():
@@ -47,7 +46,7 @@ func status(eventType string, reason string) (string, *string) {
 		conclusion = &checkRunConclusionSuccess
 	case cloudevent.TaskRunFailedEventV1.String():
 		status = checkRunStatusCompleted
-		conclusion = get_failure_conclusion(reason)
+		conclusion = getFailureConclusion(reason)
 	default:
 		status = checkRunStatusQueued
 	}
