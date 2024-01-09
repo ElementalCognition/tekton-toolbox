@@ -2,7 +2,6 @@ package githubstatussync
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/ElementalCognition/tekton-toolbox/pkg/cloudeventsync"
 	"github.com/google/go-github/v43/github"
@@ -28,7 +27,6 @@ func (s *service) Sync(
 		logger.Warnw("Service received unsupported cloud event; skipping")
 		return nil
 	}
-	fmt.Printf("Full TaskRun event: %+v\n", tr)
 	cro, err := checkRun(eventType, tr)
 	if err != nil {
 		return err
