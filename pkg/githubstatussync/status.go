@@ -2,6 +2,7 @@ package githubstatussync
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 	"github.com/tektoncd/pipeline/pkg/reconciler/events/cloudevent"
@@ -44,21 +45,23 @@ func getFailureConclusion(tr *v1beta1.TaskRun) *string {
 	message = tr.Status.GetConditions()[0].Message
 	if hasOptionalMarker(tr.Spec.Params) {
 		return &checkRunConclusionNeutral
-	} else {
-		switch reason {
-		case v1beta1.TaskRunReasonCancelled.String():
-			if message == "TaskRun cancelled as the PipelineRun it belongs to has timed out." {
-				failureConclusion = &checkRunConclusionTimedOut
-			} else {
-				failureConclusion = &checkRunConclusionCancelled
-			}
-		case v1beta1.TaskRunReasonTimedOut.String():
-			failureConclusion = &checkRunConclusionTimedOut
-		default:
-			failureConclusion = &checkRunConclusionFailure
-		}
-		return failureConclusion
 	}
+	switch reason {
+	case v1beta1.TaskRunReasonCancelled.String():
+		if strings.Contains(
+			message,
+			"TaskRun cancelled as the PipelineRun it belongs to has timed out.",
+		) {
+			failureConclusion = &checkRunConclusionTimedOut
+		} else {
+			failureConclusion = &checkRunConclusionCancelled
+		}
+	case v1beta1.TaskRunReasonTimedOut.String():
+		failureConclusion = &checkRunConclusionTimedOut
+	default:
+		failureConclusion = &checkRunConclusionFailure
+	}
+	return failureConclusion
 }
 
 func status(eventType string, tr *v1beta1.TaskRun) (string, *string) {
