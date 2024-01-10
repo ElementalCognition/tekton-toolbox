@@ -24,30 +24,31 @@ var (
 	checkRunConclusionFailure   = "failure"
 )
 
-func hasOptionalMarker(params v1beta1.Params) bool {
-	for _, p := range params {
-		if p.Name == "optional-task" && p.Value.StringVal == "true" {
+var optionalMarker = "optional-task"
+
+func hasOptionalMarker(trp v1beta1.Params) bool {
+	for _, p := range trp {
+		if p.Name == optionalMarker && p.Value.StringVal == "true" {
 			return true
 		}
 	}
 	return false
 }
 
-func getFailureConclusion(tr *v1beta1.TaskRun) *string {
+func getFailureConclusion(trs v1beta1.TaskRunStatus) *string {
 	var failureConclusion *string
 	var reason string
 	var message string
 
-	fmt.Printf("TaskRun params: %+v\n", tr.Spec.Params)
-	fmt.Printf("TaskRun status: %+v\n", tr.Status.GetConditions()[0].Reason)
 	// TODO hardcoding the first condition for now. Probably should be done better
-	reason = tr.Status.GetConditions()[0].Reason
-	message = tr.Status.GetConditions()[0].Message
-	if hasOptionalMarker(tr.Spec.Params) {
-		return &checkRunConclusionNeutral
-	}
+	fmt.Printf("TaskRun status: %+v\n", trs.GetConditions()[0].Reason)
+	reason = trs.GetConditions()[0].Reason
+	message = trs.GetConditions()[0].Message
 	switch reason {
 	case v1beta1.TaskRunReasonCancelled.String():
+		// It seems to be pretty hard to actually get a clear TimedOut reason for a task.
+		// During tests I was unable to get it without PipelineRun time out cancelling it first.
+		// So we somewhat hack around this problem by checking the message and deciding based on it.
 		if strings.Contains(
 			message,
 			"TaskRun cancelled as the PipelineRun it belongs to has timed out.",
@@ -77,7 +78,11 @@ func status(eventType string, tr *v1beta1.TaskRun) (string, *string) {
 		conclusion = &checkRunConclusionSuccess
 	case cloudevent.TaskRunFailedEventV1.String():
 		status = checkRunStatusCompleted
-		conclusion = getFailureConclusion(tr)
+		if hasOptionalMarker(tr.Spec.Params) {
+			conclusion = &checkRunConclusionNeutral
+		} else {
+			conclusion = getFailureConclusion(tr.Status)
+		}
 	default:
 		status = checkRunStatusQueued
 	}
