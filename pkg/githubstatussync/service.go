@@ -27,7 +27,7 @@ func (s *service) Sync(
 		logger.Warnw("Service received unsupported cloud event; skipping")
 		return nil
 	}
-	cro, err := checkRun(eventType, tr)
+	cro, err := checkRun(ctx, eventType, tr)
 	if err != nil {
 		return err
 	}
