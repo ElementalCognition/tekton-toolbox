@@ -1,6 +1,7 @@
 package githubstatussync
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -71,7 +72,11 @@ func checkRunOutput(tr *v1beta1.TaskRun, url string) *github.CheckRunOutput {
 	}
 }
 
-func checkRun(eventType string, tr *v1beta1.TaskRun) (*github.CreateCheckRunOptions, error) {
+func checkRun(
+	ctx context.Context,
+	eventType string,
+	tr *v1beta1.TaskRun,
+) (*github.CreateCheckRunOptions, error) {
 	url, err := detailsURL(tr)
 	if err != nil {
 		return nil, err
@@ -80,7 +85,7 @@ func checkRun(eventType string, tr *v1beta1.TaskRun) (*github.CreateCheckRunOpti
 	if err != nil {
 		return nil, err
 	}
-	status, conclusion := status(eventType, tr)
+	status, conclusion := status(ctx, eventType, tr)
 	completedAt := timestamp(tr.Status.CompletionTime)
 	switch status {
 	case checkRunStatusInProgress:
@@ -93,7 +98,7 @@ func checkRun(eventType string, tr *v1beta1.TaskRun) (*github.CreateCheckRunOpti
 		ExternalID:  github.String(string(tr.UID)),
 		Name:        name,
 		Status:      github.String(status),
-		Conclusion:  conclusion,
+		Conclusion:  github.String(conclusion),
 		HeadSHA:     ref,
 		StartedAt:   timestamp(tr.Status.StartTime),
 		CompletedAt: completedAt,

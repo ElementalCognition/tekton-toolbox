@@ -1,14 +1,15 @@
 package githubstatussync
 
 import (
-	"fmt"
+	"context"
 	"strings"
 
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 	"github.com/tektoncd/pipeline/pkg/reconciler/events/cloudevent"
+	"knative.dev/pkg/logging"
 )
 
-var (
+const (
 	checkRunStatusQueued     = "queued"
 	checkRunStatusInProgress = "in_progress"
 	checkRunStatusCompleted  = "completed"
@@ -16,7 +17,7 @@ var (
 
 // Subset of check conclusions when check has "completed" status.
 // https://docs.github.com/en/rest/guides/using-the-rest-api-to-interact-with-checks?apiVersion=2022-11-28#about-check-suites
-var (
+const (
 	checkRunConclusionSuccess   = "success"
 	checkRunConclusionNeutral   = "neutral"
 	checkRunConclusionTimedOut  = "timed_out"
@@ -35,39 +36,49 @@ func hasOptionalMarker(trp v1beta1.Params) bool {
 	return false
 }
 
-func getFailureConclusion(trs v1beta1.TaskRunStatus) *string {
-	var failureConclusion *string
-	var reason string
-	var message string
+// getFailureConclusion
+// Resolve specific reason for failure based on the TaskRunStatus via Conditions (depends on Reason and Message).
+func getFailureConclusion(ctx context.Context, trs v1beta1.TaskRunStatus) string {
+	var failureConclusion, reason, message string
 
-	// TODO hardcoding the first condition for now. Probably should be done better
-	fmt.Printf("TaskRun status: %+v\n", trs.GetConditions()[0].Reason)
-	reason = trs.GetConditions()[0].Reason
-	message = trs.GetConditions()[0].Message
+	logger := logging.FromContext(ctx)
+
+	trsLen := len(trs.GetConditions())
+	if trsLen == 0 {
+		logger.Errorw("Received empty conditions, can't determine status %v", trs)
+		return checkRunConclusionFailure
+	}
+	logger.Infof("TaskRun status: %+v", trs.GetConditions())
+
+	// TODO Find how tekton orders conditions.
+	reason = trs.GetConditions()[trsLen-1].GetReason()
+	message = trs.GetConditions()[trsLen-1].GetMessage()
 	switch reason {
 	case v1beta1.TaskRunReasonCancelled.String():
 		// It seems to be pretty hard to actually get a clear TimedOut reason for a task.
 		// During tests I was unable to get it without PipelineRun time out cancelling it first.
 		// So we somewhat hack around this problem by checking the message and deciding based on it.
+		failureConclusion = checkRunConclusionCancelled
 		if strings.Contains(
 			message,
 			"TaskRun cancelled as the PipelineRun it belongs to has timed out.",
 		) {
-			failureConclusion = &checkRunConclusionTimedOut
-		} else {
-			failureConclusion = &checkRunConclusionCancelled
+			logger.Infof("Detected PipelineRun timeout, counting as general timeout")
+			failureConclusion = checkRunConclusionTimedOut
 		}
 	case v1beta1.TaskRunReasonTimedOut.String():
-		failureConclusion = &checkRunConclusionTimedOut
+		failureConclusion = checkRunConclusionTimedOut
 	default:
-		failureConclusion = &checkRunConclusionFailure
+		failureConclusion = checkRunConclusionFailure
 	}
+
+	logger.Infof("Resolved conclusion: %s", failureConclusion)
 	return failureConclusion
 }
 
-func status(eventType string, tr *v1beta1.TaskRun) (string, *string) {
-	var status string
-	var conclusion *string
+func status(ctx context.Context, eventType string, tr *v1beta1.TaskRun) (string, string) {
+	var status, conclusion string
+
 	switch eventType {
 	case cloudevent.TaskRunUnknownEventV1.String(), cloudevent.TaskRunStartedEventV1.String():
 		status = checkRunStatusQueued
@@ -75,13 +86,13 @@ func status(eventType string, tr *v1beta1.TaskRun) (string, *string) {
 		status = checkRunStatusInProgress
 	case cloudevent.TaskRunSuccessfulEventV1.String():
 		status = checkRunStatusCompleted
-		conclusion = &checkRunConclusionSuccess
+		conclusion = checkRunConclusionSuccess
 	case cloudevent.TaskRunFailedEventV1.String():
 		status = checkRunStatusCompleted
 		if hasOptionalMarker(tr.Spec.Params) {
-			conclusion = &checkRunConclusionNeutral
+			conclusion = checkRunConclusionNeutral
 		} else {
-			conclusion = getFailureConclusion(tr.Status)
+			conclusion = getFailureConclusion(ctx, tr.Status)
 		}
 	default:
 		status = checkRunStatusQueued
