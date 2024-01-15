@@ -48,7 +48,7 @@ func getFailureConclusion(ctx context.Context, trs v1beta1.TaskRunStatus) string
 		logger.Errorw("Received empty conditions, can't determine status %v", trs)
 		return checkRunConclusionFailure
 	}
-	logger.Errorf("TaskRun status: %+v", trs.GetConditions())
+	logger.Warnf("TaskRun status: %+v", trs.GetConditions())
 
 	// TODO Find how tekton orders conditions.
 	reason = trs.GetConditions()[trsLen-1].GetReason()
@@ -63,7 +63,7 @@ func getFailureConclusion(ctx context.Context, trs v1beta1.TaskRunStatus) string
 			message,
 			"TaskRun cancelled as the PipelineRun it belongs to has timed out.",
 		) {
-			logger.Errorf("Detected PipelineRun timeout, counting as general timeout")
+			logger.Warnf("Detected PipelineRun timeout, counting as general timeout")
 			failureConclusion = checkRunConclusionTimedOut
 		}
 	case v1beta1.TaskRunReasonTimedOut.String():
@@ -72,7 +72,7 @@ func getFailureConclusion(ctx context.Context, trs v1beta1.TaskRunStatus) string
 		failureConclusion = checkRunConclusionFailure
 	}
 
-	logger.Errorf("Resolved conclusion: %s", failureConclusion)
+	logger.Warnf("Resolved conclusion: %s", failureConclusion)
 	return failureConclusion
 }
 
@@ -91,8 +91,9 @@ func status(ctx context.Context, eventType string, tr *v1beta1.TaskRun) (string,
 		conclusion = checkRunConclusionSuccess
 	case cloudevent.TaskRunFailedEventV1.String():
 		status = checkRunStatusCompleted
-		logger.Errorf("Resolved conclusion: %+v", tr)
+		logger.Warnf("Failed event: %+v", tr)
 		if hasOptionalMarker(tr.Spec.Params) {
+			logger.Warnf("Found optional marker: %+v", tr.Spec.Params)
 			conclusion = checkRunConclusionNeutral
 		} else {
 			conclusion = getFailureConclusion(ctx, tr.Status)

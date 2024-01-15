@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/go-github/v43/github"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	"knative.dev/pkg/logging"
 )
 
 func checkRunOutput(tr *v1beta1.TaskRun, url string) *github.CheckRunOutput {
@@ -77,6 +78,7 @@ func checkRun(
 	eventType string,
 	tr *v1beta1.TaskRun,
 ) (*github.CreateCheckRunOptions, error) {
+	logger := logging.FromContext(ctx)
 	url, err := detailsURL(tr)
 	if err != nil {
 		return nil, err
@@ -94,6 +96,8 @@ func checkRun(
 	}
 	ref := tr.Annotations[refKey.String()]
 	output := checkRunOutput(tr, url)
+	logger.Warnf("Trying to report %s", conclusion)
+
 	return &github.CreateCheckRunOptions{
 		ExternalID:  github.String(string(tr.UID)),
 		Name:        name,
