@@ -91,7 +91,6 @@ func status(ctx context.Context, eventType string, tr *v1beta1.TaskRun) (string,
 		conclusion = checkRunConclusionSuccess
 	case cloudevent.TaskRunFailedEventV1.String():
 		status = checkRunStatusCompleted
-		logger.Warnf("Failed event: %+v", tr)
 		if hasOptionalMarker(tr.Spec.Params) {
 			logger.Warnf("Found optional marker: %+v", tr.Spec.Params)
 			conclusion = checkRunConclusionNeutral

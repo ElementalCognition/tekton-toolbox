@@ -96,7 +96,7 @@ func checkRun(
 	}
 	ref := tr.Annotations[refKey.String()]
 	output := checkRunOutput(tr, url)
-	logger.Warnf("Trying to report %s", conclusion)
+	logger.Warnf("Trying to report %s from %+v triggered by %s", conclusion, tr, eventType)
 
 	return &github.CreateCheckRunOptions{
 		ExternalID:  github.String(string(tr.UID)),
