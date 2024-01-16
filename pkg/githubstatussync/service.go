@@ -41,10 +41,14 @@ func (s *service) Sync(
 		zap.String("name", cro.Name),
 		zap.Stringp("detailsUrl", cro.DetailsURL),
 		zap.Stringp("status", cro.Status),
-		zap.Stringp("conclusion", cro.Conclusion),
 		zap.Timep("startedAt", time(cro.StartedAt)),
-		zap.Timep("completedAt", time(cro.CompletedAt)),
 	)
+	if *cro.Status == checkRunStatusCompleted {
+		logger.With(
+			zap.Stringp("conclusion", cro.Conclusion),
+			zap.Timep("completedAt", time(cro.CompletedAt)),
+		)
+	}
 	logger.Infow("Service started sync status")
 	cr, res, err := s.githubClient.Checks.CreateCheckRun(ctx, ownerName, repoName, *cro)
 	if err != nil {
