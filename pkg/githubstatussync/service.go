@@ -44,7 +44,7 @@ func (s *service) Sync(
 		zap.Timep("startedAt", time(cro.StartedAt)),
 	)
 	if *cro.Status == checkRunStatusCompleted {
-		logger.With(
+		logger = logger.With(
 			zap.Stringp("conclusion", cro.Conclusion),
 			zap.Timep("completedAt", time(cro.CompletedAt)),
 		)

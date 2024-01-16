@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	"github.com/tektoncd/pipeline/pkg/reconciler/events/cloudevent"
 	"knative.dev/pkg/logging"
 )
 
@@ -70,11 +71,11 @@ func getFailureConclusion(ctx context.Context, trs v1beta1.TaskRunStatus) string
 }
 
 // Resolve github conclusion for completed TaskRuns.
-func conclusion(ctx context.Context, status string, tr *v1beta1.TaskRun) string {
+func conclusion(ctx context.Context, eventType string, tr *v1beta1.TaskRun) string {
 	var conclusion string
 	logger := logging.FromContext(ctx)
 
-	if status == checkRunConclusionSuccess {
+	if eventType == cloudevent.TaskRunSuccessfulEventV1.String() {
 		return checkRunConclusionSuccess
 	}
 
