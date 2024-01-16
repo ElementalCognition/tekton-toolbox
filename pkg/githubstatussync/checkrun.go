@@ -10,12 +10,7 @@ import (
 	"knative.dev/pkg/logging"
 )
 
-func checkRunStepLog(
-	tr *v1beta1.TaskRun,
-	step v1beta1.StepState,
-	url string,
-	step_emoji string,
-) string {
+func checkRunStepLog(tr *v1beta1.TaskRun, step v1beta1.StepState, url string, emoji string) string {
 	return fmt.Sprintf(
 		"Raw log for step: [%s](%s/%s/%s/%s) %s.",
 		step.Name,
@@ -23,17 +18,17 @@ func checkRunStepLog(
 		tr.Namespace,
 		tr.Status.PodName,
 		step.ContainerName,
-		step_emoji,
+		emoji,
 	)
 }
 
-func checkRunStepAnnotation(step v1beta1.StepState, step_status string) *github.CheckRunAnnotation {
+func checkRunStepAnnotation(step v1beta1.StepState, status string) *github.CheckRunAnnotation {
 	return &github.CheckRunAnnotation{
 		Path:      github.String("README.md"), // Dummy file name, required item.
 		StartLine: github.Int(1),              // Dummy int, required item.
 		EndLine:   github.Int(1),              // Dummy int, required item.
 		AnnotationLevel: github.String(
-			step_status,
+			status,
 		), // Can be one of notice, warning, or failure.
 		Title: github.String(step.Name),
 		Message: github.String(
