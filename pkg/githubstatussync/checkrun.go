@@ -43,7 +43,7 @@ func checkRunOutput(tr *v1beta1.TaskRun, url string) *github.CheckRunOutput {
 	var checkRunAnnotations []*github.CheckRunAnnotation
 
 	for _, step := range tr.Status.Steps {
-		var step_status, step_emoji string
+		var stepStatus, stepEmoji string
 
 		if step.Terminated == nil {
 			fmt.Printf("TaskRun terminated field is nil, skip annotation. TR: %s \n", tr.Name)
@@ -52,21 +52,21 @@ func checkRunOutput(tr *v1beta1.TaskRun, url string) *github.CheckRunOutput {
 
 		switch step.Terminated.Reason {
 		case "Completed":
-			step_status = "notice"
-			step_emoji = ":white_check_mark:"
+			stepStatus = "notice"
+			stepEmoji = ":white_check_mark:"
 		case "Failed", "Error":
-			step_status = "failure"
-			step_emoji = ":x:"
+			stepStatus = "failure"
+			stepEmoji = ":x:"
 		case "TaskRunCancelled":
-			step_status = "warning"
-			step_emoji = ":warning:"
+			stepStatus = "warning"
+			stepEmoji = ":warning:"
 		default:
-			step_status = "notice"
-			step_emoji = ":grey_question:"
+			stepStatus = "notice"
+			stepEmoji = ":grey_question:"
 		}
 
-		checkRunAnnotations = append(checkRunAnnotations, checkRunStepAnnotation(step, step_status))
-		checkRunLogs = append(checkRunLogs, checkRunStepLog(tr, step, url, step_emoji))
+		checkRunAnnotations = append(checkRunAnnotations, checkRunStepAnnotation(step, stepStatus))
+		checkRunLogs = append(checkRunLogs, checkRunStepLog(tr, step, url, stepEmoji))
 	}
 
 	return &github.CheckRunOutput{
