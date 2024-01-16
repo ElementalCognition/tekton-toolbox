@@ -79,6 +79,7 @@ func checkRun(
 	tr *v1beta1.TaskRun,
 ) (*github.CreateCheckRunOptions, error) {
 	logger := logging.FromContext(ctx)
+
 	url, err := detailsURL(tr)
 	if err != nil {
 		return nil, err
@@ -87,26 +88,35 @@ func checkRun(
 	if err != nil {
 		return nil, err
 	}
-	status, conclusion := status(ctx, eventType, tr)
-	completedAt := timestamp(tr.Status.CompletionTime)
-	switch status {
-	case checkRunStatusInProgress:
-	case checkRunStatusQueued:
-		completedAt = nil
-	}
 	ref := tr.Annotations[refKey.String()]
 	output := checkRunOutput(tr, url)
-	logger.Warnf("Trying to report %s from %+v triggered by %s", conclusion, tr, eventType)
+	status := status(eventType)
 
-	return &github.CreateCheckRunOptions{
-		ExternalID:  github.String(string(tr.UID)),
-		Name:        name,
-		Status:      github.String(status),
-		Conclusion:  github.String(conclusion),
-		HeadSHA:     ref,
-		StartedAt:   timestamp(tr.Status.StartTime),
-		CompletedAt: completedAt,
-		DetailsURL:  github.String(url),
-		Output:      output,
-	}, nil
+	checkRunOptions := &github.CreateCheckRunOptions{
+		ExternalID: github.String(string(tr.UID)),
+		Name:       name,
+		Status:     github.String(status),
+		HeadSHA:    ref,
+		StartedAt:  timestamp(tr.Status.StartTime),
+		DetailsURL: github.String(url),
+		Output:     output,
+	}
+
+	// According to docs, conclusion is only available if the status is "completed".
+	// Also, if you specify completedAt field, conclusion becomes required.
+	// https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28#create-a-check-run
+	if status == checkRunStatusCompleted {
+		logger.Warnf(
+			"Found completed check run, adding conclusion and completedAt fields to the request",
+		)
+		checkRunOptions.CompletedAt = timestamp(tr.Status.CompletionTime)
+		checkRunOptions.Conclusion = github.String(conclusion(ctx, status, tr))
+	}
+
+	logger.Warnf(
+		"Trying to report %s status",
+		eventType,
+	)
+
+	return checkRunOptions, nil
 }
