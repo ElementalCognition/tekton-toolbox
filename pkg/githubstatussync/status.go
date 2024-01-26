@@ -1,8 +1,6 @@
 package githubstatussync
 
-import (
-	"github.com/tektoncd/pipeline/pkg/reconciler/events/cloudevent"
-)
+import "github.com/tektoncd/pipeline/pkg/reconciler/events/cloudevent"
 
 const (
 	checkRunStatusQueued     = "queued"

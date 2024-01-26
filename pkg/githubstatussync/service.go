@@ -50,6 +50,14 @@ func (s *service) Sync(
 		)
 	}
 	logger.Infow("Service started sync status")
+	// This bit might be quite confusing. While the API reference states that this should be use for creation only,
+	// actually running it again while keeping the same name (and only name) will "overwrite" check run.
+	// In practice it means that the new check run will be created, but github will only use the latest.
+	// All the previous check runs will be still in place and reachable via direct URL, but they won't affect the check suite.
+	// In theory, we should use UpdateCheckRun API (or method) for everything that is not just queued.
+	//
+	// But this proves to be quite cumbersome as we need to "get" checks for a ref, then find the correct one by name, ExternalID
+	// or somethig else (or a combination) to then actually update. It seems it doesn't actually provide any real benifit though.
 	cr, res, err := s.githubClient.Checks.CreateCheckRun(ctx, ownerName, repoName, *cro)
 	if err != nil {
 		logger.Errorw("Service failed to sync status",
