@@ -1,5 +1,5 @@
 # Whitesource scanning
-FROM us-central1-docker.pkg.dev/elementalcognition-app-source/platform/whitesource-agent as whitesource
+FROM us-central1-docker.pkg.dev/elementalcognition-app-source/platform/whitesource-agent-go as whitesource
 RUN mkdir ${WSS_USER_HOME}/Data
 ARG WS_APIKEY
 ARG WS_PROJECTVERSION
