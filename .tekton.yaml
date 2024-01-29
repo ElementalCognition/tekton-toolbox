@@ -193,7 +193,7 @@ triggers:
               value: pipeline/ko/0.1/ko.yaml
         params:
           - name: cmd-path
-            value: cmd/tekton-param-validator
+            value: ./cmd/tekton-param-validator
           - name: image
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/platform/dev/tekton-toolbox/tekton-param-validator
       - name: whitesource
