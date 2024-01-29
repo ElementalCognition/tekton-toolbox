@@ -1,0 +1,9 @@
+---
+builds:
+  - id: tekton-parameter-validator
+    dir: ./cmd/tekton-param-validator/
+    main: .
+    env:
+      - GOPROXY="https://artifacts.src.ec.ai/artifactory/api/go/go-all"
+    flags:
+      - "--buildvcs=false"

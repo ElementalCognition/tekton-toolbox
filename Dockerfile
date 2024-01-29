@@ -1,11 +1,10 @@
 # Whitesource scanning
-FROM us-central1-docker.pkg.dev/elementalcognition-app-source/platform/whitesource-agent as whitesource
+FROM us-central1-docker.pkg.dev/elementalcognition-app-source/platform/dev/whitesource-agent-go:0acb0d6 as whitesource
 RUN mkdir ${WSS_USER_HOME}/Data
 ARG WS_APIKEY
 ARG WS_PROJECTVERSION
 ARG WS_PROJECTNAME="tekton-toolbox"
 ARG WS_PRODUCTNAME="platform"
-ARG WS_LOG_LEVEL="warn"
 ARG WS_GO_RESOLVEDEPENDENCIES="false"
 ARG WS_GO_MODULES_RESOLVEDEPENDENCIES="true"
 ARG WS_GO_COLLECTDEPENDENCIESATRUNTIME="true"

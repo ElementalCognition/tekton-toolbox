@@ -178,6 +178,24 @@ triggers:
             value: body.pull_request.head.sha
           - name: cache-image
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/config-validator
+      - name: ko-tekton-param-validator
+        metadata:
+          annotations:
+            tekton.ec.ai/memberOf: tekton-param-validator
+        pipelineRef:
+          resolver: git
+          params:
+            - name: repo
+              value: tekton-catalog-new
+            - name: revision
+              value: OSL-1249-adding-ko-builds
+            - name: pathInRepo
+              value: pipeline/ko/0.1/ko.yaml
+        params:
+          - name: cmd-path
+            value: ./cmd/tekton-param-validator
+          - name: image
+            value: us-central1-docker.pkg.dev/elementalcognition-app-source/platform/dev/tekton-toolbox/tekton-param-validator
       - name: whitesource
         pipelineRef:
           resolver: git
