@@ -1,3 +1,4 @@
+---
 name: 'tekton-pipeline-check'
 description: 'Generate tekton pipelineRuns from given configurations'
 inputs:
