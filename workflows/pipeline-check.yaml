@@ -1,0 +1,40 @@
+name: Run tekton pipelineRun generator test
+on:
+  pull_request:
+    paths:
+      - .tekton.yaml
+env:
+  VALIDATOR-VERSION: ef5746dc58db3a753f210647d867aef3300f5d76
+jobs:
+  pipeline-validator:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Connect to Container Registry
+        uses: docker/login-action@v2.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Pull Private Package Image
+        run: docker pull ghcr.io/elementalcognition/tkn-config-validator:${{env.VALIDATOR-VERSION}}
+      - uses: actions/checkout@v3
+        with:
+          path: main
+          sparse-checkout: |
+            .tekton.yaml
+            .github
+      - uses: actions/checkout@v3
+        with:
+          repository: ElementalCognition/gitops-next
+          ssh-key: ${{ secrets.GITOPS_READONLY_RSA }}
+          path: config
+          sparse-checkout: |
+            platform/tekton-toolbox/kube-pipeline-config/base/config.yaml
+          sparse-checkout-cone-mode: false
+      - name: Generate PipelineRuns
+        uses: ./main/.github/actions/
+        with:
+          config-default: config/platform/tekton-toolbox/kube-pipeline-config/base/config.yaml
+          config-local: main/.tekton.yaml
+          options: "--alphaFeatureGate --verbose" #--verbose outputs generated pipeline,
+          validator-version: ${{env.VALIDATOR-VERSION}}
