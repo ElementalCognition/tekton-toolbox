@@ -33,8 +33,6 @@ func hasOptionalMarker(trp v1beta1.Params) bool {
 
 // Resolve specific reason for failure based on the TaskRunStatus via Conditions (depends on Reason and Message).
 func getFailureConclusion(ctx context.Context, trs v1beta1.TaskRunStatus) string {
-	var failureConclusion, reason, message string
-
 	logger := logging.FromContext(ctx)
 
 	trsLen := len(trs.GetConditions())
@@ -42,9 +40,12 @@ func getFailureConclusion(ctx context.Context, trs v1beta1.TaskRunStatus) string
 		logger.Errorw("Received empty conditions, can't determine status %v", trs)
 		return checkRunConclusionFailure
 	}
-	logger.Warnf("TaskRun status: %+v", trs.GetConditions())
+	logger.Debugw("TaskRun status: %+v", trs.GetConditions())
 
-	// TODO Find how tekton orders conditions.
+	var failureConclusion, reason, message string
+
+	// Was unable to find in which order conditions are added.
+	// Current assumption would be that the latest condition will be last.
 	reason = trs.GetConditions()[trsLen-1].GetReason()
 	message = trs.GetConditions()[trsLen-1].GetMessage()
 	switch reason {
@@ -57,7 +58,7 @@ func getFailureConclusion(ctx context.Context, trs v1beta1.TaskRunStatus) string
 			message,
 			"TaskRun cancelled as the PipelineRun it belongs to has timed out.",
 		) {
-			logger.Warnf("Detected PipelineRun timeout, counting as general timeout")
+			logger.Debugw("Detected PipelineRun timeout, counting as general timeout")
 			failureConclusion = checkRunConclusionTimedOut
 		}
 	case v1beta1.TaskRunReasonTimedOut.String():
@@ -66,12 +67,12 @@ func getFailureConclusion(ctx context.Context, trs v1beta1.TaskRunStatus) string
 		failureConclusion = checkRunConclusionFailure
 	}
 
-	logger.Warnf("Resolved conclusion: %s", failureConclusion)
+	logger.Debugw("Resolved conclusion: %s", failureConclusion)
 	return failureConclusion
 }
 
-// Resolve github conclusion for completed TaskRuns.
-func conclusion(ctx context.Context, eventType string, tr *v1beta1.TaskRun) string {
+// Resolve github resolveConclusion for completed TaskRuns.
+func resolveConclusion(ctx context.Context, eventType string, tr *v1beta1.TaskRun) string {
 	var conclusion string
 	logger := logging.FromContext(ctx)
 
@@ -80,7 +81,7 @@ func conclusion(ctx context.Context, eventType string, tr *v1beta1.TaskRun) stri
 	}
 
 	if hasOptionalMarker(tr.Spec.Params) {
-		logger.Warnf("Found optional marker: %+v", tr.Spec.Params)
+		logger.Infow("Found optional marker: %+v", tr.Spec.Params)
 		conclusion = checkRunConclusionNeutral
 	} else {
 		conclusion = getFailureConclusion(ctx, tr.Status)

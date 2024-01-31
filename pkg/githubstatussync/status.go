@@ -8,7 +8,7 @@ const (
 	checkRunStatusCompleted  = "completed"
 )
 
-func status(eventType string) string {
+func getStatus(eventType string) string {
 	var status string
 
 	switch eventType {
