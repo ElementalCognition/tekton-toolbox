@@ -67,7 +67,7 @@ func checkRunOutput(ctx context.Context, tr *v1beta1.TaskRun, url string) *githu
 		}
 
 		checkRunAnnotations = append(checkRunAnnotations, checkRunStepAnnotation(step, stepStatus))
-		checkRunLogs = append(checkRunLogs, checkRunStepLog(tr, step, url, stepEmoji))
+		checkRunLogs = append(checkRunLogs, checkRunStepLogString(tr, step, url, stepEmoji))
 	}
 
 	return &github.CheckRunOutput{
