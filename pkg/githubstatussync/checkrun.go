@@ -10,7 +10,7 @@ import (
 	"knative.dev/pkg/logging"
 )
 
-func checkRunStepLog(tr *v1beta1.TaskRun, step v1beta1.StepState, url string, emoji string) string {
+func checkRunStepLogString(tr *v1beta1.TaskRun, step v1beta1.StepState, url string, emoji string) string {
 	return fmt.Sprintf(
 		"Raw log for step: [%s](%s/%s/%s/%s) %s.",
 		step.Name,
@@ -38,7 +38,8 @@ func checkRunStepAnnotation(step v1beta1.StepState, status string) *github.Check
 	}
 }
 
-func checkRunOutput(tr *v1beta1.TaskRun, url string) *github.CheckRunOutput {
+func checkRunOutput(ctx context.Context, tr *v1beta1.TaskRun, url string) *github.CheckRunOutput {
+	logger := logging.FromContext(ctx)
 	var checkRunLogs []string
 	var checkRunAnnotations []*github.CheckRunAnnotation
 
@@ -46,7 +47,7 @@ func checkRunOutput(tr *v1beta1.TaskRun, url string) *github.CheckRunOutput {
 		var stepStatus, stepEmoji string
 
 		if step.Terminated == nil {
-			fmt.Printf("TaskRun terminated field is nil, skip annotation. TR: %s \n", tr.Name)
+			logger.Debugw("TaskRun terminated field is nil, skip annotation. TR: %s \n", tr.Name)
 			continue
 		}
 
@@ -98,8 +99,8 @@ func checkRun(
 		return nil, err
 	}
 	ref := tr.Annotations[refKey.String()]
-	output := checkRunOutput(tr, url)
-	status := status(eventType)
+	output := checkRunOutput(ctx, tr, url)
+	status := getStatus(eventType)
 
 	checkRunOptions := &github.CreateCheckRunOptions{
 		ExternalID: github.String(string(tr.UID)),
@@ -115,14 +116,14 @@ func checkRun(
 	// Also, if you specify completedAt field, conclusion becomes required.
 	// https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28#create-a-check-run
 	if status == checkRunStatusCompleted {
-		logger.Warnf(
+		logger.Debugw(
 			"Found completed check run, adding conclusion and completedAt fields to the request",
 		)
 		checkRunOptions.CompletedAt = timestamp(tr.Status.CompletionTime)
-		checkRunOptions.Conclusion = github.String(conclusion(ctx, eventType, tr))
+		checkRunOptions.Conclusion = github.String(resolveConclusion(ctx, eventType, tr))
 	}
 
-	logger.Warnf(
+	logger.Debugw(
 		"Trying to report %s status",
 		eventType,
 	)
