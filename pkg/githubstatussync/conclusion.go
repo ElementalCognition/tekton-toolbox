@@ -9,7 +9,7 @@ import (
 	"knative.dev/pkg/logging"
 )
 
-var optionalMarker = "optional-task"
+const optionalMarker = "optional-task"
 
 // Subset of check conclusions when check has "completed" status.
 // https://docs.github.com/en/rest/guides/using-the-rest-api-to-interact-with-checks?apiVersion=2022-11-28#about-check-suites
