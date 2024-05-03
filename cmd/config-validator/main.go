@@ -117,7 +117,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	if err = validateTag(ppDefConf, ppRepConf); err != nil {
+		log.Fatal(err)
+	}
 	err = ppDefConf.Merge(ppRepConf)
 	if err != nil {
 		log.Fatalf("Can't merge configs: %v", err)
@@ -130,4 +132,27 @@ func main() {
 	if !fail {
 		log.Fatal("Pipelines validation failed.")
 	}
+}
+
+func validateTag(ppDefConf, ppRepConf *pipelineconfig.Config) error {
+	getTag := func(config *pipelineconfig.Config) string {
+		const tag = "tag"
+		for _, param := range config.Defaults.Params {
+			if param.Name == tag {
+				return param.Param.Value.StringVal
+			}
+		}
+
+		return ""
+	}
+
+	ppDefTag := getTag(ppDefConf)
+	ppRepTag := getTag(ppRepConf)
+	if ppDefTag != "" && ppRepTag != "" {
+		if ppDefTag != ppRepTag {
+			return fmt.Errorf("mismatched default: %s and local: %s tags", ppDefTag, ppRepTag)
+		}
+	}
+
+	return nil
 }
