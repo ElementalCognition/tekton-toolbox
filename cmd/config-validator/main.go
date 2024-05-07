@@ -12,7 +12,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/pflag"
 	"github.com/tektoncd/pipeline/pkg/apis/config"
-	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	"sigs.k8s.io/yaml"
 )
 
@@ -47,7 +47,7 @@ func readAndUnmarshalConfig(path string) (*pipelineconfig.Config, error) {
 	return cfg, nil
 }
 
-func toPipelineRun(p ...*pipelinerun.PipelineRun) (*v1beta1.PipelineRun, error) {
+func toPipelineRun(p ...*pipelinerun.PipelineRun) (*v1.PipelineRun, error) {
 	tr := &pipelinerun.PipelineRun{}
 	err := tr.MergeAll(p...)
 	if err != nil {
@@ -56,8 +56,8 @@ func toPipelineRun(p ...*pipelinerun.PipelineRun) (*v1beta1.PipelineRun, error) 
 	return tr.PipelineRun()
 }
 
-func PipelineRuns(c pipelineconfig.Config) ([]*v1beta1.PipelineRun, error) {
-	var prs []*v1beta1.PipelineRun
+func PipelineRuns(c pipelineconfig.Config) ([]*v1.PipelineRun, error) {
+	var prs []*v1.PipelineRun
 	for _, t := range c.Triggers {
 		for _, p := range t.Pipelines {
 			pr, err := toPipelineRun(&c.Defaults, &t.Defaults, &p)
@@ -91,7 +91,7 @@ func processPipelineRuns(cfg *pipelineconfig.Config) ([]byte, bool) {
 
 		ctx := context.TODO()
 		if alphaFeatureGate {
-			ctx = config.EnableAlphaAPIFields(ctx)
+			ctx = enableAlphaAPIFields(ctx)
 		}
 
 		errs := p.Spec.Validate(ctx)
@@ -103,6 +103,19 @@ func processPipelineRuns(cfg *pipelineconfig.Config) ([]byte, bool) {
 		}
 	}
 	return pprYaml, allValid
+}
+
+func enableAlphaAPIFields(ctx context.Context) context.Context {
+	featureFlags, _ := config.NewFeatureFlagsFromMap(map[string]string{
+		"enable-api-fields": config.AlphaAPIFields,
+	})
+	cfg := &config.Config{
+		Defaults: &config.Defaults{
+			DefaultTimeoutMinutes: config.DefaultTimeoutMinutes,
+		},
+		FeatureFlags: featureFlags,
+	}
+	return config.ToContext(ctx, cfg)
 }
 
 func main() {

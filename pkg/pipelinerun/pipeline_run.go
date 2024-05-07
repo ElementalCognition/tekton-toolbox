@@ -7,12 +7,12 @@ import (
 	"github.com/ElementalCognition/tekton-toolbox/pkg/pipelinemerge"
 	"github.com/ElementalCognition/tekton-toolbox/pkg/pipelineresolver"
 	"github.com/imdario/mergo"
-	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type PipelineRun struct {
-	v1beta1.PipelineRunSpec
+	v1.PipelineRunSpec
 	Name     string `json:"name,omitempty"`
 	Metadata `json:"metadata,omitempty"`
 	Params   ParamSlice `json:"params,omitempty"`
@@ -44,20 +44,20 @@ func (p *PipelineRun) Reconcile(ctx context.Context, meta *pipelineresolver.Meta
 	return p.Params.Reconcile(ctx, meta)
 }
 
-func (p *PipelineRun) PipelineRun() (*v1beta1.PipelineRun, error) {
+func (p *PipelineRun) PipelineRun() (*v1.PipelineRun, error) {
 	name := p.Name
 	if p.PipelineRef != nil && len(p.PipelineRef.Name) > 0 {
 		name = p.PipelineRef.Name
 	}
 	meta := p.Metadata.DeepCopy()
 	meta.GenerateName = fmt.Sprintf("%s-run-", name)
-	var params []v1beta1.Param
+	var params []v1.Param
 	for _, p := range p.Params {
 		params = append(params, *p.Param.DeepCopy())
 	}
 	spec := p.PipelineRunSpec.DeepCopy()
 	spec.Params = params
-	return &v1beta1.PipelineRun{
+	return &v1.PipelineRun{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "PipelineRun",
 			APIVersion: "tekton.dev/v1beta1",

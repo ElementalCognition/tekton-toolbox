@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/ElementalCognition/tekton-toolbox/pkg/pipelineresolver"
-	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 )
 
 type Param struct {
-	v1beta1.Param
+	v1.Param
 }
 
 var _ pipelineresolver.Reconciler = (*Param)(nil)
@@ -19,13 +19,13 @@ func (p *Param) Reconcile(ctx context.Context, metadata *pipelineresolver.Metada
 		return err
 	}
 	switch p.Value.Type {
-	case v1beta1.ParamTypeString:
+	case v1.ParamTypeString:
 		i, err := r.SafeValueOf(ctx, metadata, p.Value.StringVal)
 		if err != nil {
 			return err
 		}
 		p.Value.StringVal = fmt.Sprint(i)
-	case v1beta1.ParamTypeArray:
+	case v1.ParamTypeArray:
 		for k, v := range p.Value.ArrayVal {
 			i, err := r.SafeValueOf(ctx, metadata, v)
 			if err != nil {

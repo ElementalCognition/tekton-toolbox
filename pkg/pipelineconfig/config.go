@@ -9,7 +9,7 @@ import (
 	"github.com/ElementalCognition/tekton-toolbox/pkg/pipelineresolver"
 	"github.com/ElementalCognition/tekton-toolbox/pkg/pipelinerun"
 	"github.com/imdario/mergo"
-	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	v1pipeline "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	v1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/yaml"
 )
@@ -28,7 +28,7 @@ func (c *Config) Merge(s *Config) error {
 	return mergo.Merge(c, s, pipelinemerge.DefaultOptions...)
 }
 
-func (c *Config) toPipelineRun(ctx context.Context, meta *pipelineresolver.Metadata, p ...*pipelinerun.PipelineRun) (*v1beta1.PipelineRun, error) {
+func (c *Config) toPipelineRun(ctx context.Context, meta *pipelineresolver.Metadata, p ...*pipelinerun.PipelineRun) (*v1pipeline.PipelineRun, error) {
 	tr := &pipelinerun.PipelineRun{}
 	err := tr.MergeAll(p...)
 	if err != nil {
@@ -41,8 +41,8 @@ func (c *Config) toPipelineRun(ctx context.Context, meta *pipelineresolver.Metad
 	return tr.PipelineRun()
 }
 
-func (c *Config) PipelineRuns(ctx context.Context, meta *pipelineresolver.Metadata) ([]*v1beta1.PipelineRun, error) {
-	var prs []*v1beta1.PipelineRun
+func (c *Config) PipelineRuns(ctx context.Context, meta *pipelineresolver.Metadata) ([]*v1pipeline.PipelineRun, error) {
+	var prs []*v1pipeline.PipelineRun
 	for _, t := range c.Triggers {
 		ok, err := t.Filter.Match(ctx, meta)
 		if err != nil {

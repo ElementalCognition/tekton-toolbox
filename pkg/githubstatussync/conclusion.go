@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	"github.com/tektoncd/pipeline/pkg/reconciler/events/cloudevent"
 	"knative.dev/pkg/logging"
 )
@@ -22,7 +22,7 @@ const (
 )
 
 // Verify if the paramater list for a TaskRun contains this variable set to true (string).
-func hasOptionalMarker(trp v1beta1.Params) bool {
+func hasOptionalMarker(trp v1.Params) bool {
 	for _, p := range trp {
 		if p.Name == optionalMarker && p.Value.StringVal == "true" {
 			return true
@@ -32,7 +32,7 @@ func hasOptionalMarker(trp v1beta1.Params) bool {
 }
 
 // Resolve specific reason for failure based on the TaskRunStatus via Conditions (depends on Reason and Message).
-func getFailureConclusion(ctx context.Context, trs v1beta1.TaskRunStatus) string {
+func getFailureConclusion(ctx context.Context, trs v1.TaskRunStatus) string {
 	logger := logging.FromContext(ctx)
 
 	trsLen := len(trs.GetConditions())
@@ -49,7 +49,7 @@ func getFailureConclusion(ctx context.Context, trs v1beta1.TaskRunStatus) string
 	reason = trs.GetConditions()[trsLen-1].GetReason()
 	message = trs.GetConditions()[trsLen-1].GetMessage()
 	switch reason {
-	case v1beta1.TaskRunReasonCancelled.String():
+	case v1.TaskRunReasonCancelled.String():
 		// It seems to be pretty hard to actually get a clear TimedOut reason for a task.
 		// During tests I was unable to get it without PipelineRun time out cancelling it first.
 		// So we somewhat hack around this problem by checking the message and deciding based on it.
@@ -61,7 +61,7 @@ func getFailureConclusion(ctx context.Context, trs v1beta1.TaskRunStatus) string
 			logger.Debugw("Detected PipelineRun timeout, counting as general timeout")
 			failureConclusion = checkRunConclusionTimedOut
 		}
-	case v1beta1.TaskRunReasonTimedOut.String():
+	case v1.TaskRunReasonTimedOut.String():
 		failureConclusion = checkRunConclusionTimedOut
 	default:
 		failureConclusion = checkRunConclusionFailure
@@ -72,7 +72,7 @@ func getFailureConclusion(ctx context.Context, trs v1beta1.TaskRunStatus) string
 }
 
 // Resolve github resolveConclusion for completed TaskRuns.
-func resolveConclusion(ctx context.Context, eventType string, tr *v1beta1.TaskRun) string {
+func resolveConclusion(ctx context.Context, eventType string, tr *v1.TaskRun) string {
 	var conclusion string
 	logger := logging.FromContext(ctx)
 

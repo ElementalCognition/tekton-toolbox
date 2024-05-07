@@ -5,6 +5,7 @@ import (
 
 	"github.com/ElementalCognition/tekton-toolbox/pkg/cloudeventsync"
 	"github.com/google/go-github/v43/github"
+	v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	"github.com/tektoncd/pipeline/pkg/reconciler/events/cloudevent"
 	"go.uber.org/zap"
 	"knative.dev/pkg/logging"
@@ -27,7 +28,12 @@ func (s *service) Sync(
 		logger.Warnw("Service received unsupported cloud event; skipping")
 		return nil
 	}
-	cro, err := checkRun(ctx, eventType, tr)
+	trV1 := new(v1.TaskRun)
+	if err := trV1.ConvertTo(ctx, tr); err != nil {
+		logger.Warnw("Service unable to convert cloud event from v1beta1 to v1; skipping")
+		return nil
+	}
+	cro, err := checkRun(ctx, eventType, trV1)
 	if err != nil {
 		return err
 	}
@@ -60,10 +66,11 @@ func (s *service) Sync(
 	// or somethig else (or a combination) to then actually update. It seems it doesn't actually provide any real benifit though.
 	cr, res, err := s.githubClient.Checks.CreateCheckRun(ctx, ownerName, repoName, *cro)
 	if err != nil {
-		logger.Errorw("Service failed to sync status",
-			zap.String("responseStatus", res.Status),
-			zap.Error(err),
-		)
+		keyAndVals := []any{zap.Error(err)}
+		if res != nil {
+			keyAndVals = append(keyAndVals, zap.String("responseStatus", res.Status))
+		}
+		logger.Errorw("Service failed to sync status", keyAndVals...)
 	} else {
 		logger.Infow("Service finished sync status",
 			zap.String("responseStatus", res.Status),
