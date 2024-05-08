@@ -50,10 +50,8 @@ func (s *service) Sync(
 		zap.Timep("startedAt", time(cro.StartedAt)),
 	)
 	if *cro.Status == checkRunStatusCompleted {
-		logger = logger.With(
-			zap.Stringp("conclusion", cro.Conclusion),
-			zap.Timep("completedAt", time(cro.CompletedAt)),
-		)
+		logger = logger.With(zap.Stringp("conclusion", cro.Conclusion),
+			zap.Timep("completedAt", time(cro.CompletedAt)))
 	}
 	logger.Infow("Service started sync status")
 	// This bit might be quite confusing. While the API reference states that this should be use for creation only,

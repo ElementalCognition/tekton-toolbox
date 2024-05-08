@@ -60,7 +60,7 @@ func (p *PipelineRun) PipelineRun() (*v1.PipelineRun, error) {
 	return &v1.PipelineRun{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "PipelineRun",
-			APIVersion: "tekton.dev/v1beta1",
+			APIVersion: "tekton.dev/v1",
 		},
 		ObjectMeta: *meta,
 		Spec:       *spec,

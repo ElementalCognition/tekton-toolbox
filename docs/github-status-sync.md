@@ -75,13 +75,13 @@ via [Cloud Event](https://tekton.dev/docs/pipelines/events/#events-via-cloudeven
 | `github.tekton.dev/owner` | GitHub org or user who owns the repo (for `ElementalCognition/tekton-toolbox`, this should be `ElementalCognition`).                                                                                                                                                                                                                                   |
 | `github.tekton.dev/repo`  | GitHub repo name (for `ElementalCognition/tekton-toolbox`, this should be `tekton-toolbox`).                                                                                                                                                                                                                                                           |
 | `github.tekton.dev/ref`   | GitHub Git Ref.                                                                                                                                                                                                                                                                                                                                        |
-| `github.tekton.dev/url`   | Details URL to use for GitHub CheckRun/Status. If not specified, defaults to `https://tekton.dev/#/namespaces/{{ .Namespace }}/taskruns/{{ .Name }}`. You can use `text/template` templating syntax to generate URL and access any variables of [`TaskRun`](https://pkg.go.dev/github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1#TaskRun) inside. |
-| `github.tekton.dev/name`  | Display name to use for GitHub CheckRun/Status. If not specified, defaults to `{{ .Namespace }}/{{ .Name }}`. You can use `text/template` templating syntax to generate name and access any variables of [`TaskRun`](https://github.com/tektoncd/pipeline/blob/main/pkg/apis/pipeline/v1beta1/taskrun_types.go) inside.                                |
+| `github.tekton.dev/url`   | Details URL to use for GitHub CheckRun/Status. If not specified, defaults to `https://tekton.dev/#/namespaces/{{ .Namespace }}/taskruns/{{ .Name }}`. You can use `text/template` templating syntax to generate URL and access any variables of [`TaskRun`](https://pkg.go.dev/github.com/tektoncd/pipeline/pkg/apis/pipeline/v1#TaskRun) inside. |
+| `github.tekton.dev/name`  | Display name to use for GitHub CheckRun/Status. If not specified, defaults to `{{ .Namespace }}/{{ .Name }}`. You can use `text/template` templating syntax to generate name and access any variables of [`TaskRun`](https://github.com/tektoncd/pipeline/blob/main/pkg/apis/pipeline/v1/taskrun_types.go) inside.                                |
 
 Sample `TaskRun` file:
 
 ```yaml
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: TaskRun
 metadata:
   annotations:
