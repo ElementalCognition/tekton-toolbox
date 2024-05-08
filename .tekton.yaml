@@ -10,7 +10,7 @@ defaults:
     - name: go-version
       value: "1.22"
     - name: go-lint-version
-      value: "1.50.1"
+      value: "1.58.0"
 triggers:
   - name: pr
     pipelines:
