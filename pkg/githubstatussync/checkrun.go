@@ -10,7 +10,7 @@ import (
 	"knative.dev/pkg/logging"
 )
 
-func checkRunStepLogString(tr *v1.TaskRun, step v1.StepState, url string, emoji string) string {
+func checkRunStepLogString(tr *v1.TaskRun, step v1.StepState, emoji string) string {
 	return fmt.Sprintf(
 		"Raw log for step: [%s](%s/%s/%s/%s) %s.",
 		step.Name,
@@ -67,7 +67,7 @@ func checkRunOutput(ctx context.Context, tr *v1.TaskRun, url string) *github.Che
 		}
 
 		checkRunAnnotations = append(checkRunAnnotations, checkRunStepAnnotation(step, stepStatus))
-		checkRunLogs = append(checkRunLogs, checkRunStepLogString(tr, step, url, stepEmoji))
+		checkRunLogs = append(checkRunLogs, checkRunStepLogString(tr, step, stepEmoji))
 	}
 
 	return &github.CheckRunOutput{
