@@ -1,6 +1,7 @@
 module github.com/ElementalCognition/tekton-toolbox
 
 go 1.22
+toolchain go1.22.2
 
 require (
 	cloud.google.com/go/storage v1.36.0
@@ -21,8 +22,8 @@ require (
 	google.golang.org/api v0.176.1
 	google.golang.org/grpc v1.63.2
 	gopkg.in/go-playground/pool.v3 v3.1.1
-	k8s.io/api v0.28.5
-	k8s.io/apimachinery v0.29.0
+	k8s.io/api v0.30.0
+	k8s.io/apimachinery v0.30.0
 	k8s.io/client-go v0.28.5
 	knative.dev/pkg v0.0.0-20240116073220-b488e7be5902
 	sigs.k8s.io/yaml v1.4.0
@@ -130,8 +131,8 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/apiextensions-apiserver v0.28.5 // indirect
-	k8s.io/klog/v2 v2.110.1 // indirect
-	k8s.io/kube-openapi v0.0.0-20231010175941-2dd684a91f00 // indirect
+	k8s.io/klog/v2 v2.120.1 // indirect
+	k8s.io/kube-openapi v0.0.0-20240228011516-70dd3763d340 // indirect
 	k8s.io/utils v0.0.0-20230726121419-3b25d923346b // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
