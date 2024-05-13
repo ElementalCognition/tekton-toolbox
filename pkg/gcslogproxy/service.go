@@ -74,7 +74,7 @@ func (f *fetcher) fetch(ctx context.Context, filename string) ([]byte, error) {
 	if err != nil {
 		return nil, wrapError(err)
 	}
-	defer func(f *fetcher, rc *storage.Reader) {
+	defer func(_ *fetcher, rc *storage.Reader) {
 		err := rc.Close()
 		if err != nil {
 			logger.Errorw("Service failed to close GCS reader", zap.Error(err))

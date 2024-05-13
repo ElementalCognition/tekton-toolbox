@@ -108,7 +108,7 @@ Each [`Triggers`](../pkg/pipelineconfig/trigger.go) definition supports the foll
 `Pipeline` definition supports the following fields:
 
 - `*` -
-  all [`PipelineRunSpec`](https://pkg.go.dev/github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1#PipelineRunSpec)
+  all [`PipelineRunSpec`](https://pkg.go.dev/github.com/tektoncd/pipeline/pkg/apis/pipeline/v1#PipelineRunSpec)
   fields.
 - `name` - Specifies a name of current pipeline.
 - `metadata` - Specifies [`metadata`](https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#ObjectMeta) that uniquely

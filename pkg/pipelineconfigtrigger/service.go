@@ -3,7 +3,7 @@ package pipelineconfigtrigger
 import (
 	"context"
 	"github.com/hashicorp/go-multierror"
-	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
 	"go.uber.org/zap"
 	"gopkg.in/go-playground/pool.v3"
@@ -12,7 +12,7 @@ import (
 )
 
 type Service interface {
-	Create(ctx context.Context, pipelineRuns ...*v1beta1.PipelineRun) error
+	Create(ctx context.Context, pipelineRuns ...*v1.PipelineRun) error
 }
 
 type service struct {
@@ -22,7 +22,7 @@ type service struct {
 
 var _ Service = (*service)(nil)
 
-func (s *service) create(ctx context.Context, pipelineRun *v1beta1.PipelineRun) func(wu pool.WorkUnit) (interface{}, error) {
+func (s *service) create(ctx context.Context, pipelineRun *v1.PipelineRun) func(wu pool.WorkUnit) (interface{}, error) {
 	return func(wu pool.WorkUnit) (interface{}, error) {
 		if wu.IsCancelled() {
 			return nil, nil
@@ -35,13 +35,13 @@ func (s *service) create(ctx context.Context, pipelineRun *v1beta1.PipelineRun) 
 			zap.Any("labels", pipelineRun.Labels),
 			zap.Any("annotations", pipelineRun.Annotations),
 		)
-		return s.tektonClient.TektonV1beta1().
+		return s.tektonClient.TektonV1().
 			PipelineRuns(pipelineRun.Namespace).
 			Create(ctx, pipelineRun, metav1.CreateOptions{})
 	}
 }
 
-func (s *service) Create(ctx context.Context, pipelineRuns ...*v1beta1.PipelineRun) error {
+func (s *service) Create(ctx context.Context, pipelineRuns ...*v1.PipelineRun) error {
 	me := new(multierror.Error)
 	batch := s.pool.Batch()
 	for _, pipelineRun := range pipelineRuns {

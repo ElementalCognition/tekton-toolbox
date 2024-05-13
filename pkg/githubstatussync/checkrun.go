@@ -6,23 +6,23 @@ import (
 	"strings"
 
 	"github.com/google/go-github/v43/github"
-	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	"knative.dev/pkg/logging"
 )
 
-func checkRunStepLogString(tr *v1beta1.TaskRun, step v1beta1.StepState, url string, emoji string) string {
+func checkRunStepLogString(tr *v1.TaskRun, step v1.StepState, emoji string) string {
 	return fmt.Sprintf(
 		"Raw log for step: [%s](%s/%s/%s/%s) %s.",
 		step.Name,
 		tr.Annotations[logServer.String()],
 		tr.Namespace,
 		tr.Status.PodName,
-		step.ContainerName,
+		step.Container,
 		emoji,
 	)
 }
 
-func checkRunStepAnnotation(step v1beta1.StepState, status string) *github.CheckRunAnnotation {
+func checkRunStepAnnotation(step v1.StepState, status string) *github.CheckRunAnnotation {
 	return &github.CheckRunAnnotation{
 		Path:      github.String("README.md"), // Dummy file name, required item.
 		StartLine: github.Int(1),              // Dummy int, required item.
@@ -38,7 +38,7 @@ func checkRunStepAnnotation(step v1beta1.StepState, status string) *github.Check
 	}
 }
 
-func checkRunOutput(ctx context.Context, tr *v1beta1.TaskRun, url string) *github.CheckRunOutput {
+func checkRunOutput(ctx context.Context, tr *v1.TaskRun, url string) *github.CheckRunOutput {
 	logger := logging.FromContext(ctx)
 	var checkRunLogs []string
 	var checkRunAnnotations []*github.CheckRunAnnotation
@@ -67,7 +67,7 @@ func checkRunOutput(ctx context.Context, tr *v1beta1.TaskRun, url string) *githu
 		}
 
 		checkRunAnnotations = append(checkRunAnnotations, checkRunStepAnnotation(step, stepStatus))
-		checkRunLogs = append(checkRunLogs, checkRunStepLogString(tr, step, url, stepEmoji))
+		checkRunLogs = append(checkRunLogs, checkRunStepLogString(tr, step, stepEmoji))
 	}
 
 	return &github.CheckRunOutput{
@@ -86,7 +86,7 @@ func checkRunOutput(ctx context.Context, tr *v1beta1.TaskRun, url string) *githu
 func checkRun(
 	ctx context.Context,
 	eventType string,
-	tr *v1beta1.TaskRun,
+	tr *v1.TaskRun,
 ) (*github.CreateCheckRunOptions, error) {
 	logger := logging.FromContext(ctx)
 

@@ -6,7 +6,7 @@ import (
 
 	"github.com/ElementalCognition/tekton-toolbox/pkg/pipelineresolver"
 	"github.com/stretchr/testify/assert"
-	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 )
 
 func TestParam_Reconcile_StringRef(t *testing.T) {
@@ -14,9 +14,9 @@ func TestParam_Reconcile_StringRef(t *testing.T) {
 	assert.Nil(t, err)
 	ctx := pipelineresolver.WithResolver(context.TODO(), r)
 	p := &Param{
-		Param: v1beta1.Param{
-			Value: v1beta1.ParamValue{
-				Type:      v1beta1.ParamTypeString,
+		Param: v1.Param{
+			Value: v1.ParamValue{
+				Type:      v1.ParamTypeString,
 				StringVal: "body.repository.clone_url",
 			},
 		},
@@ -38,9 +38,9 @@ func TestParam_Reconcile_ArrayRef(t *testing.T) {
 	assert.Nil(t, err)
 	ctx := pipelineresolver.WithResolver(context.TODO(), r)
 	p := &Param{
-		Param: v1beta1.Param{
-			Value: v1beta1.ParamValue{
-				Type: v1beta1.ParamTypeArray,
+		Param: v1.Param{
+			Value: v1.ParamValue{
+				Type: v1.ParamTypeArray,
 				ArrayVal: []string{
 					"body.repository.clone_url",
 				},
@@ -66,9 +66,9 @@ func TestParam_Reconcile_StringDefault(t *testing.T) {
 	assert.Nil(t, err)
 	ctx := pipelineresolver.WithResolver(context.TODO(), r)
 	p := &Param{
-		Param: v1beta1.Param{
-			Value: v1beta1.ParamValue{
-				Type:      v1beta1.ParamTypeString,
+		Param: v1.Param{
+			Value: v1.ParamValue{
+				Type:      v1.ParamTypeString,
 				StringVal: "foo",
 			},
 		},
@@ -86,9 +86,9 @@ func TestParam_Reconcile_ArrayDefault(t *testing.T) {
 	assert.Nil(t, err)
 	ctx := pipelineresolver.WithResolver(context.TODO(), r)
 	p := &Param{
-		Param: v1beta1.Param{
-			Value: v1beta1.ParamValue{
-				Type: v1beta1.ParamTypeArray,
+		Param: v1.Param{
+			Value: v1.ParamValue{
+				Type: v1.ParamTypeArray,
 				ArrayVal: []string{
 					"foo",
 					"bar",

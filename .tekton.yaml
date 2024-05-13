@@ -8,9 +8,9 @@ defaults:
     - name: whitesource-project-name
       value: tekton-toolbox
     - name: go-version
-      value: "1.19"
+      value: "1.22"
     - name: go-lint-version
-      value: "1.50.1"
+      value: "1.58.1"
 triggers:
   - name: pr
     pipelines:

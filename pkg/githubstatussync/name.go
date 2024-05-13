@@ -2,13 +2,13 @@ package githubstatussync
 
 import (
 	"bytes"
-	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	"html/template"
 )
 
 const defaultName = "{{ .Namespace }}/{{ .Name }}"
 
-func nameFor(tr *v1beta1.TaskRun) (string, error) {
+func nameFor(tr *v1.TaskRun) (string, error) {
 	name, ok := tr.Annotations[nameKey.String()]
 	if !ok || len(name) == 0 {
 		name = defaultName

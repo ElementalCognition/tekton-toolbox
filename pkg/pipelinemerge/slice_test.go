@@ -5,24 +5,24 @@ import (
 
 	"github.com/imdario/mergo"
 	"github.com/stretchr/testify/assert"
-	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	v1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 )
 
 func TestMergeSlice_SameValues(t *testing.T) {
-	dst := &v1beta1.PipelineRunSpec{
-		Params: []v1beta1.Param{
+	dst := &v1.PipelineRunSpec{
+		Params: []v1.Param{
 			{
 				Name:  "param-1",
-				Value: v1beta1.ParamValue{},
+				Value: v1.ParamValue{},
 			},
 		},
 	}
-	src := &v1beta1.PipelineRunSpec{
-		Params: []v1beta1.Param{
+	src := &v1.PipelineRunSpec{
+		Params: []v1.Param{
 			{
 				Name: "param-1",
-				Value: v1beta1.ParamValue{
-					Type:      v1beta1.ParamTypeString,
+				Value: v1.ParamValue{
+					Type:      v1.ParamTypeString,
 					StringVal: "param-1-value",
 				},
 			},
@@ -30,11 +30,11 @@ func TestMergeSlice_SameValues(t *testing.T) {
 	}
 	err := mergo.Merge(dst, src, mergo.WithOverride, WithMergeSliceByName())
 	assert.Nil(t, err)
-	assert.Equal(t, v1beta1.Params{
-		{
+	assert.Equal(t, v1.Params{
+		v1.Param{
 			Name: "param-1",
-			Value: v1beta1.ParamValue{
-				Type:      v1beta1.ParamTypeString,
+			Value: v1.ParamValue{
+				Type:      v1.ParamTypeString,
 				StringVal: "param-1-value",
 			},
 		},
@@ -42,20 +42,20 @@ func TestMergeSlice_SameValues(t *testing.T) {
 }
 
 func TestMergeSlice_DifferentValues(t *testing.T) {
-	dst := &v1beta1.PipelineRunSpec{
-		Params: []v1beta1.Param{
+	dst := &v1.PipelineRunSpec{
+		Params: []v1.Param{
 			{
 				Name:  "param-1",
-				Value: v1beta1.ParamValue{},
+				Value: v1.ParamValue{},
 			},
 		},
 	}
-	src := &v1beta1.PipelineRunSpec{
-		Params: []v1beta1.Param{
+	src := &v1.PipelineRunSpec{
+		Params: []v1.Param{
 			{
 				Name: "param-2",
-				Value: v1beta1.ParamValue{
-					Type:      v1beta1.ParamTypeString,
+				Value: v1.ParamValue{
+					Type:      v1.ParamTypeString,
 					StringVal: "param-2-value",
 				},
 			},
@@ -63,15 +63,15 @@ func TestMergeSlice_DifferentValues(t *testing.T) {
 	}
 	err := mergo.Merge(dst, src, mergo.WithOverride, WithMergeSliceByName())
 	assert.Nil(t, err)
-	assert.Equal(t, v1beta1.Params{
-		{
+	assert.Equal(t, v1.Params{
+		v1.Param{
 			Name:  "param-1",
-			Value: v1beta1.ParamValue{},
+			Value: v1.ParamValue{},
 		},
-		{
+		v1.Param{
 			Name: "param-2",
-			Value: v1beta1.ParamValue{
-				Type:      v1beta1.ParamTypeString,
+			Value: v1.ParamValue{
+				Type:      v1.ParamTypeString,
 				StringVal: "param-2-value",
 			},
 		},
@@ -79,30 +79,30 @@ func TestMergeSlice_DifferentValues(t *testing.T) {
 }
 
 func TestMergeSlice_DuplicateValues(t *testing.T) {
-	dst := &v1beta1.PipelineRunSpec{
-		Params: []v1beta1.Param{
+	dst := &v1.PipelineRunSpec{
+		Params: []v1.Param{
 			{
 				Name: "param-1",
-				Value: v1beta1.ParamValue{
-					Type:      v1beta1.ParamTypeString,
+				Value: v1.ParamValue{
+					Type:      v1.ParamTypeString,
 					StringVal: "param-1-value",
 				},
 			},
 		},
 	}
-	src := &v1beta1.PipelineRunSpec{
-		Params: []v1beta1.Param{
+	src := &v1.PipelineRunSpec{
+		Params: []v1.Param{
 			{
 				Name: "param-1",
-				Value: v1beta1.ParamValue{
-					Type:      v1beta1.ParamTypeString,
+				Value: v1.ParamValue{
+					Type:      v1.ParamTypeString,
 					StringVal: "param-1-value",
 				},
 			},
 			{
 				Name: "param-1",
-				Value: v1beta1.ParamValue{
-					Type:      v1beta1.ParamTypeString,
+				Value: v1.ParamValue{
+					Type:      v1.ParamTypeString,
 					StringVal: "param-1-new-value",
 				},
 			},
@@ -110,11 +110,11 @@ func TestMergeSlice_DuplicateValues(t *testing.T) {
 	}
 	err := mergo.Merge(dst, src, mergo.WithOverride, WithMergeSliceByName(mergo.WithOverride))
 	assert.Nil(t, err)
-	assert.Equal(t, v1beta1.Params{
-		{
+	assert.Equal(t, v1.Params{
+		v1.Param{
 			Name: "param-1",
-			Value: v1beta1.ParamValue{
-				Type:      v1beta1.ParamTypeString,
+			Value: v1.ParamValue{
+				Type:      v1.ParamTypeString,
 				StringVal: "param-1-new-value",
 			},
 		},
