@@ -113,3 +113,39 @@ Each [`Triggers`](../pkg/pipelineconfig/trigger.go) definition supports the foll
 - `name` - Specifies a name of current pipeline.
 - `metadata` - Specifies [`metadata`](https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1#ObjectMeta) that uniquely
   identifies pipeline, eg. `annotations`.
+
+
+## Example on how to rewrite computeResources for task or task.step
+``` .tekton.yaml
+triggers:
+  - name: pr
+    pipelines:
+      - name: buf
+        pipelineRef:
+          resolver: git
+          params:
+            - name: repo
+              value: tekton-catalog-new
+            - name: pathInRepo
+              value: pipeline/protos/0.3/buf.yaml
+        taskRunSpecs:
+          - pipelineTaskName: lint
+            computeResources:
+              requests:
+                memory: 1Gi
+                cpu: '1'
+              limits:
+                memory: 1Gi
+                cpu: '1'
+
+          - pipelineTaskName: svu
+            stepSpecs:
+              - name: svu
+                computeResources:
+                  requests:
+                    memory: 1.2Gi
+                    cpu: '1.2'
+                  limits:
+                    memory: 1.2Gi
+                    cpu: '1.2'
+```
