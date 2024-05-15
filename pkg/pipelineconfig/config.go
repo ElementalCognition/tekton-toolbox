@@ -80,7 +80,8 @@ func (c *Config) MarshalJSON() ([]byte, error) {
 }
 
 func (c *Config) UnmarshalYAML(data []byte) error {
-	return yaml.Unmarshal(data, &c)
+	return yaml.UnmarshalStrict(data, &c)
+	// return yaml.Unmarshal(data, &c)
 }
 
 func (c *Config) UnmarshalConfigMapYAML(cm *v1.ConfigMap) error {
