@@ -23,7 +23,7 @@ require (
 	google.golang.org/grpc v1.63.2
 	gopkg.in/go-playground/pool.v3 v3.1.1
 	k8s.io/api v0.30.0
-	k8s.io/apimachinery v0.30.0
+	k8s.io/apimachinery v0.30.1
 	k8s.io/client-go v0.30.0
 	knative.dev/pkg v0.0.0-20240116073220-b488e7be5902
 	sigs.k8s.io/yaml v1.4.0
