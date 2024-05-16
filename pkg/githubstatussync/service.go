@@ -30,7 +30,7 @@ func (s *service) Sync(
 	}
 	trV1 := new(v1.TaskRun)
 	if err := trV1.ConvertTo(ctx, tr); err != nil {
-		logger.Warnw("Service unable to convert cloud event from v1beta1 to v1; err: %v", zap.Error(err))
+		logger.Warnf("Service unable to convert cloud event from v1beta1 to v1; err: %v", err)
 		return nil
 	}
 	cro, err := checkRun(ctx, eventType, trV1)
