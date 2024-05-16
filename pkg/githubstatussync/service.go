@@ -29,7 +29,7 @@ func (s *service) Sync(
 		return nil
 	}
 	trV1 := new(v1.TaskRun)
-	if err := trV1.ConvertTo(ctx, tr); err != nil {
+	if err := trV1.ConvertFrom(ctx, tr); err != nil {
 		logger.Warnf("Service unable to convert cloud event from v1beta1 to v1; err: %v", err)
 		return nil
 	}
