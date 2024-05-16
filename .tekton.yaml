@@ -21,7 +21,7 @@ triggers:
             - name: repo
               value: tekton-catalog-new
             - name: revision
-              value: OSL-1533/buildkit-svu
+              value: main
             - name: pathInRepo
               value: pipeline/yaml/0.1/yaml-sanity.yaml
       - name: go-sanity
@@ -31,7 +31,7 @@ triggers:
             - name: repo
               value: tekton-catalog-new
             - name: revision
-              value: OSL-1533/buildkit-svu
+              value: main
             - name: pathInRepo
               value: pipeline/go/0.3/go-sanity.yaml
       - name: buildkit-gcs-log-proxy
@@ -44,7 +44,7 @@ triggers:
             - name: repo
               value: tekton-catalog-new
             - name: revision
-              value: OSL-1533/buildkit-svu
+              value: main
             - name: pathInRepo
               value: pipeline/buildkit/0.3/buildkit-svu.yaml
         params:
@@ -66,7 +66,7 @@ triggers:
             - name: repo
               value: tekton-catalog-new
             - name: revision
-              value: OSL-1533/buildkit-svu
+              value: main
             - name: pathInRepo
               value: pipeline/buildkit/0.3/buildkit-svu.yaml
         params:
@@ -88,7 +88,7 @@ triggers:
             - name: repo
               value: tekton-catalog-new
             - name: revision
-              value: OSL-1533/buildkit-svu
+              value: main
             - name: pathInRepo
               value: pipeline/buildkit/0.3/buildkit-svu.yaml
         params:
@@ -110,7 +110,7 @@ triggers:
             - name: repo
               value: tekton-catalog-new
             - name: revision
-              value: OSL-1533/buildkit-svu
+              value: main
             - name: pathInRepo
               value: pipeline/buildkit/0.3/buildkit-svu.yaml
         params:
@@ -132,7 +132,7 @@ triggers:
             - name: repo
               value: tekton-catalog-new
             - name: revision
-              value: OSL-1533/buildkit-svu
+              value: main
             - name: pathInRepo
               value: pipeline/buildkit/0.3/buildkit-svu.yaml
         params:
@@ -154,7 +154,7 @@ triggers:
             - name: repo
               value: tekton-catalog-new
             - name: revision
-              value: OSL-1533/buildkit-svu
+              value: main
             - name: pathInRepo
               value: pipeline/buildkit/0.3/buildkit-svu.yaml
         params:
@@ -173,7 +173,7 @@ triggers:
             - name: repo
               value: tekton-catalog-new
             - name: revision
-              value: OSL-1533/buildkit-svu
+              value: main
             - name: pathInRepo
               value: pipeline/whitesource/0.1/whitesource.yaml
         params:
@@ -194,7 +194,7 @@ triggers:
             - name: repo
               value: tekton-catalog-new
             - name: revision
-              value: OSL-1533/buildkit-svu
+              value: main
             - name: pathInRepo
               value: pipeline/go/0.3/go-sanity.yaml
       - name: gitops-gcs-log-proxy
@@ -207,7 +207,7 @@ triggers:
             - name: repo
               value: tekton-catalog-new
             - name: revision
-              value: OSL-1533/buildkit-svu
+              value: main
             - name: pathInRepo
               value: pipeline/gitops/0.3/gitops-release.yaml
         params:
@@ -245,7 +245,7 @@ triggers:
             - name: repo
               value: tekton-catalog-new
             - name: revision
-              value: OSL-1533/buildkit-svu
+              value: main
             - name: pathInRepo
               value: pipeline/gitops/0.3/gitops-release.yaml
         params:
@@ -283,7 +283,7 @@ triggers:
             - name: repo
               value: tekton-catalog-new
             - name: revision
-              value: OSL-1533/buildkit-svu
+              value: main
             - name: pathInRepo
               value: pipeline/gitops/0.3/gitops-release.yaml
         params:
@@ -321,7 +321,7 @@ triggers:
             - name: repo
               value: tekton-catalog-new
             - name: revision
-              value: OSL-1533/buildkit-svu
+              value: main
             - name: pathInRepo
               value: pipeline/gitops/0.3/gitops-release.yaml
         params:
@@ -359,7 +359,7 @@ triggers:
             - name: repo
               value: tekton-catalog-new
             - name: revision
-              value: OSL-1533/buildkit-svu
+              value: main
             - name: pathInRepo
               value: pipeline/gitops/0.3/gitops-release.yaml
         params:
@@ -397,7 +397,7 @@ triggers:
             - name: repo
               value: tekton-catalog-new
             - name: revision
-              value: OSL-1533/buildkit-svu
+              value: main
             - name: pathInRepo
               value: pipeline/buildkit/0.3/buildkit-svu.yaml
         params:
@@ -418,7 +418,7 @@ triggers:
             - name: repo
               value: tekton-catalog-new
             - name: revision
-              value: OSL-1533/buildkit-svu
+              value: main
             - name: pathInRepo
               value: pipeline/whitesource/0.1/whitesource.yaml
         params:
