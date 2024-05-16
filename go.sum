@@ -409,8 +409,8 @@ github.com/subosito/gotenv v1.4.2 h1:X1TuBLAMDFbaTAChgCBLu3DU3UPyELpnF2jjJ2cz/S8
 github.com/subosito/gotenv v1.4.2/go.mod h1:ayKnFf/c6rvx/2iiLrJUk1e6plDbT3edrFNGqEflhK0=
 github.com/tektoncd/pipeline v0.59.0 h1:bX+DX3J/SfIokDbXLtKD48ffcfZw0lZ3Ef8QxyOZ7wE=
 github.com/tektoncd/pipeline v0.59.0/go.mod h1:VjXZUGLrOy45B35ufbJZ2DLMt+TSJ3R4ZjKJvi7RWg4=
-github.com/tektoncd/triggers v0.26.2 h1:oPArs4S1wuHMh4QcvEuQk+at4BZUHI7cHe9k3NI+0ps=
-github.com/tektoncd/triggers v0.26.2/go.mod h1:eMNvsnzJlv/tQvrcVQnKT90IihWUnrvOyX66+TzOMZQ=
+github.com/tektoncd/triggers v0.27.0 h1:c55e/YJF6Vs5BEarqDYksFYuR4sFbmAVEqrLNPZvXUk=
+github.com/tektoncd/triggers v0.27.0/go.mod h1:DkkAkdSd9aAW9RklUVyFRKQ8kONmZQw4Ur2G1r3wFQo=
 github.com/tidwall/gjson v1.12.1 h1:ikuZsLdhr8Ws0IdROXUS1Gi4v9Z4pGqpX/CvJkxvfpo=
 github.com/tidwall/gjson v1.12.1/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
 github.com/tidwall/match v1.1.1 h1:+Ho715JplO36QYgwN9PGYNhgZvoUSc9X2c80KVTi+GA=
