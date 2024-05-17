@@ -46,7 +46,7 @@ triggers:
             - name: revision
               value: main
             - name: pathInRepo
-              value: pipeline/buildkit/0.2/buildkit.yaml
+              value: pipeline/buildkit/0.3/buildkit-svu.yaml
         params:
           - name: name
             value: gcs-log-proxy
@@ -54,8 +54,6 @@ triggers:
             value: cmd/gcs-log-proxy/Dockerfile
           - name: image
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/platform/dev/tekton-toolbox/gcs-log-proxy
-          - name: tag
-            value: body.pull_request.head.sha
           - name: cache-image
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/gcs-log-proxy
       - name: buildkit-github-pipeline-config
@@ -70,7 +68,7 @@ triggers:
             - name: revision
               value: main
             - name: pathInRepo
-              value: pipeline/buildkit/0.2/buildkit.yaml
+              value: pipeline/buildkit/0.3/buildkit-svu.yaml
         params:
           - name: name
             value: github-pipeline-config
@@ -78,8 +76,6 @@ triggers:
             value: cmd/github-pipeline-config/Dockerfile
           - name: image
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/platform/dev/tekton-toolbox/github-pipeline-config
-          - name: tag
-            value: body.pull_request.head.sha
           - name: cache-image
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/github-pipeline-config
       - name: buildkit-github-status-sync
@@ -94,7 +90,7 @@ triggers:
             - name: revision
               value: main
             - name: pathInRepo
-              value: pipeline/buildkit/0.2/buildkit.yaml
+              value: pipeline/buildkit/0.3/buildkit-svu.yaml
         params:
           - name: name
             value: github-status-sync
@@ -102,8 +98,6 @@ triggers:
             value: cmd/github-status-sync/Dockerfile
           - name: image
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/platform/dev/tekton-toolbox/github-status-sync
-          - name: tag
-            value: body.pull_request.head.sha
           - name: cache-image
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/github-status-sync
       - name: buildkit-kube-pipeline-config
@@ -118,7 +112,7 @@ triggers:
             - name: revision
               value: main
             - name: pathInRepo
-              value: pipeline/buildkit/0.2/buildkit.yaml
+              value: pipeline/buildkit/0.3/buildkit-svu.yaml
         params:
           - name: name
             value: kube-pipeline-config
@@ -126,8 +120,6 @@ triggers:
             value: cmd/kube-pipeline-config/Dockerfile
           - name: image
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/platform/dev/tekton-toolbox/kube-pipeline-config
-          - name: tag
-            value: body.pull_request.head.sha
           - name: cache-image
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/kube-pipeline-config
       - name: buildkit-pipeline-config-trigger
@@ -142,7 +134,7 @@ triggers:
             - name: revision
               value: main
             - name: pathInRepo
-              value: pipeline/buildkit/0.2/buildkit.yaml
+              value: pipeline/buildkit/0.3/buildkit-svu.yaml
         params:
           - name: name
             value: pipeline-config-trigger
@@ -150,8 +142,6 @@ triggers:
             value: cmd/pipeline-config-trigger/Dockerfile
           - name: image
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/platform/dev/tekton-toolbox/pipeline-config-trigger
-          - name: tag
-            value: body.pull_request.head.sha
           - name: cache-image
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/pipeline-config-trigger
       - name: buildkit-config-validator
@@ -166,7 +156,7 @@ triggers:
             - name: revision
               value: main
             - name: pathInRepo
-              value: pipeline/buildkit/0.2/buildkit.yaml
+              value: pipeline/buildkit/0.3/buildkit-svu.yaml
         params:
           - name: name
             value: config-validator
@@ -174,8 +164,6 @@ triggers:
             value: cmd/config-validator/Dockerfile
           - name: image
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/platform/dev/tekton-toolbox/config-validator
-          - name: tag
-            value: body.pull_request.head.sha
           - name: cache-image
             value: us-central1-docker.pkg.dev/elementalcognition-app-source/tekton-cache/buildkit/platform/tekton-toolbox/config-validator
       - name: whitesource
@@ -411,7 +399,7 @@ triggers:
             - name: revision
               value: main
             - name: pathInRepo
-              value: pipeline/buildkit/0.2/buildkit.yaml
+              value: pipeline/buildkit/0.3/buildkit-svu.yaml
         params:
           - name: name
             value: config-validator

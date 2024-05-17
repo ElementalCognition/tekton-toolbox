@@ -52,6 +52,17 @@ triggers:
               value: main
             - name: pathInRepo
               value: /pipeline/protos/0.3/protos-go.yaml
+        taskRunSpecs:
+          - pipelineTaskName: go
+            stepSpecs:
+              - name: lint
+                computeResources:
+                  requests:
+                    memory: 1Gi
+                    cpu: '1'
+                  limits:
+                    memory: 1Gi
+                    cpu: '1'
   - name: main
     filter: >-
       "ref" in body && body.ref == "refs/heads/main"
@@ -59,3 +70,12 @@ triggers:
       - name: main-pipeline-1
         pipelineRef:
           name: pipeline-1
+        taskRunSpecs:
+          - pipelineTaskName: go
+            computeResources:
+              requests:
+                memory: 1Gi
+                cpu: '1'
+              limits:
+                memory: 1Gi
+                cpu: '1'

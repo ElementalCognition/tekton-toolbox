@@ -1,6 +1,7 @@
 module github.com/ElementalCognition/tekton-toolbox
 
-go 1.22
+go 1.22.0
+
 toolchain go1.22.2
 
 require (
@@ -16,7 +17,7 @@ require (
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.9.0
 	github.com/tektoncd/pipeline v0.59.0
-	github.com/tektoncd/triggers v0.26.2
+	github.com/tektoncd/triggers v0.27.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/sync v0.7.0
 	google.golang.org/api v0.176.1

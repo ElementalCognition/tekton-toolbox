@@ -25,12 +25,12 @@ func (s *service) Sync(
 	logger := logging.FromContext(ctx)
 	tr := cloudEvent.TaskRun
 	if tr == nil {
-		logger.Warnw("Service received unsupported cloud event; skipping")
+		logger.Warnw("Service received unsupported cloud event, nil TaskRun; skipping")
 		return nil
 	}
 	trV1 := new(v1.TaskRun)
-	if err := trV1.ConvertTo(ctx, tr); err != nil {
-		logger.Warnw("Service unable to convert cloud event from v1beta1 to v1; skipping")
+	if err := tr.ConvertTo(ctx, trV1); err != nil {
+		logger.Warnf("Service unable to convert cloud event from %s to %s; err: %v", tr.Kind, trV1.Kind, err)
 		return nil
 	}
 	cro, err := checkRun(ctx, eventType, trV1)

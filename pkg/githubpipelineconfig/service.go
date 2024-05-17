@@ -38,9 +38,8 @@ func (s *service) Get(ctx context.Context, owner, repo, ref string) (*pipelineco
 	if err != nil {
 		return nil, err
 	}
-	if err != nil {
-		return nil, err
-	}
+	logger.Debugf("config file content %s: %s", configFile, content)
+
 	cfg := &pipelineconfig.Config{}
 	err = cfg.UnmarshalYAML([]byte(content))
 	return cfg, err
